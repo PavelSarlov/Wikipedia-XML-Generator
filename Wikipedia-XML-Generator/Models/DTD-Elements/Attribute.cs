@@ -26,6 +26,10 @@ namespace Wikipedia_XML_Generator.Models.DTD_Elements
             {
                 this.value = value;
             }
+            else
+            {
+                this.value = null;
+            }
         }
 
         private bool validateValue(String value)
@@ -48,6 +52,10 @@ namespace Wikipedia_XML_Generator.Models.DTD_Elements
                 if (this.validateValue(value) == true)
                 {
                     this.value = value;
+                }
+                else
+                {
+                    this.value = null;
                 }
             } 
         }
