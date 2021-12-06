@@ -7,14 +7,13 @@ namespace Wikipedia_XML_Generator.Models.DTD_Elements
 {
     public class Element
     {
-        private String name;
         private String content;
         Dictionary<String, Tuple<int, char>> childrenOccurrences;
         Dictionary<List<String>, Tuple<int, char>> childrenInGroupOccurrences;
 
         public Element(String name, Dictionary<String, char> childrenQuantifies, String content = null)
         {
-            this.name = name;
+            this.Name = name;
             this.populateOccurrencesDictionary(childrenQuantifies);
             this.Content = content;
         }
