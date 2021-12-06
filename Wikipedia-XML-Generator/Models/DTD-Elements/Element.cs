@@ -10,21 +10,13 @@ namespace Wikipedia_XML_Generator.Models.DTD_Elements
         private String name;
         private String content;
         Dictionary<String, Tuple<int, char>> childrenOccurrences;
-//        Dictionary<String, char> childrenQuantifies;
         Dictionary<List<String>, Tuple<int, char>> childrenInGroupOccurrences;
 
         public Element(String name, Dictionary<String, char> childrenQuantifies, String content = null)
         {
             this.name = name;
             this.popuateOccurrencesDictionary(childrenQuantifies);
-            if(this.validateContent(content) == true)
-            {
-                this.content = content;
-            }
-            else
-            {
-                this.content = null;
-            }
+            this.Content = content;
         }
 
         private bool validateContent(String content)

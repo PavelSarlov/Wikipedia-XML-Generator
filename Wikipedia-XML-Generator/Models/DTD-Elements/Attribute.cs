@@ -21,15 +21,8 @@ namespace Wikipedia_XML_Generator.Models.DTD_Elements
             this.elementName = elementName;
             this.type = type;
             this.enumerations = enumerations;
-            this.valuesType = valuesType;
-            if(this.validateValue(value) == true)
-            {
-                this.value = value;
-            }
-            else
-            {
-                this.value = null;
-            }
+            this.valuesType= valuesType;
+            this.Value = value;
         }
 
         private bool validateValue(String value)
@@ -44,8 +37,8 @@ namespace Wikipedia_XML_Generator.Models.DTD_Elements
         public String Name { get; private set; }
         public String ElementName { get; private set; }
         public AttributeTypes Type { get; private set;}
-        public AttributeValuesType ValueTypes { get; private set; }
-        public String Values 
+        public AttributeValuesType ValueType { get; private set; }
+        public String Value
         {
             get { return this.value; }
             set {
