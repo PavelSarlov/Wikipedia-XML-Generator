@@ -8,20 +8,16 @@ namespace Wikipedia_XML_Generator.Models.DTD_Elements
 {
     public class Attribute
     {
-        private String name;
-        private String elementName;
-        private AttributeTypes type;
-        private AttributeValuesType valuesType;
         private List<String> enumerations;
         private String value;
 
         public Attribute(String name, String elementName, AttributeTypes type, AttributeValuesType valuesType = AttributeValuesType.REQUIRED, List<String> enumerations = null, String value = null)
         {
-            this.name = name;
-            this.elementName = elementName;
-            this.type = type;
+            this.Name = name;
+            this.ElementName = elementName;
+            this.Type = type;
             this.enumerations = enumerations;
-            this.valuesType= valuesType;
+            this.ValuesType= valuesType;
             this.Value = value;
         }
 
@@ -37,7 +33,7 @@ namespace Wikipedia_XML_Generator.Models.DTD_Elements
         public String Name { get; private set; }
         public String ElementName { get; private set; }
         public AttributeTypes Type { get; private set;}
-        public AttributeValuesType ValueType { get; private set; }
+        public AttributeValuesType ValuesType { get; private set; }
         public String Value
         {
             get { return this.value; }
