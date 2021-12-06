@@ -4,6 +4,7 @@
     {
         FIXED = 1,
         IMPLIED = 2,
-        REQUIRED = 3
+        REQUIRED = 3,
+        VALUE = 4
     }
 }
