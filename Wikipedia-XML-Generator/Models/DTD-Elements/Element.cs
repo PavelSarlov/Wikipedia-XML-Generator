@@ -8,13 +8,15 @@ namespace Wikipedia_XML_Generator.Models.DTD_Elements
     public class Element
     {
         private String name;
-        private List<List<Tuple<String, char>>> enumeration;
         private String content;
+        Dictionary<String, int> childrenOccurrences;
+        Dictionary<String, char> childrenQuantifies;
 
-        public Element(String name, List<List<Tuple<String, char>>> enumeration = null, String content = null)
+        public Element(String name, Dictionary<String, char> childrenQuantifies, String content = null)
         {
             this.name = name;
-            this.enumeration = enumeration;
+            this.childrenQuantifies = childrenQuantifies;
+            this.popuateOccurrencesDictionary();
             if(this.validateContent(content) == true)
             {
                 this.content = content;
@@ -27,28 +29,57 @@ namespace Wikipedia_XML_Generator.Models.DTD_Elements
 
         private bool validateContent(String content)
         {
-            for(int i = 0; i < this.enumeration.Count(); i++)
+            if(this.childrenQuantifies.ContainsKey("#PCDATA"))
             {
-                if(this.enumeration[i].Count() == 1)
-                {
-                    if(this.enumeration[i][0].Item1 == "#PCDATA")
-                    {
-                        return true;
-                    }
-                }
-                else
-                {
-                    if(this.enumeration[i].Contains(new Tuple<String, char>("#PCDATA", '-')) == true)
-                    {
-                        return true;
-                    }
-                }
+                return true;
             }
             return false;
         }
 
+        private void popuateOccurrencesDictionary()
+        {
+            foreach(var item in this.childrenQuantifies)
+            {
+                this.childrenOccurrences[item.Key] = 0;
+            }
+        }
+
+        public bool isAChild(String elementName)
+        {
+            return this.childrenQuantifies.ContainsKey(elementName);
+        }
+
+        public bool addChild(String elementName)
+        {
+            if (isAChild(elementName))
+            {
+                this.childrenOccurrences[elementName]++;
+                return true;
+            }
+            return false;
+        }
+
+        public bool isChildrenCountValid()
+        {
+            foreach(var item in this.childrenQuantifies)
+            {
+                if(item.Value == '+' && this.childrenOccurrences[item.Key]<1)
+                {
+                    return false;
+                }
+                else if (item.Value == '?' && this.childrenOccurrences[item.Key] > 1)
+                {
+                    return false;
+                }
+                if (item.Value == ' ' && this.childrenOccurrences[item.Key] != 1)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         public String Name { get; private set; }
-        public List<List<Tuple<String, char>>> Enumeration { get; private set; }
         public String Content
         {
             get { return this.content; }
