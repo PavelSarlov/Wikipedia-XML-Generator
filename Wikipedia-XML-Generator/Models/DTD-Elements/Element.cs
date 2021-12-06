@@ -15,7 +15,7 @@ namespace Wikipedia_XML_Generator.Models.DTD_Elements
         public Element(String name, Dictionary<String, char> childrenQuantifies, String content = null)
         {
             this.name = name;
-            this.popuateOccurrencesDictionary(childrenQuantifies);
+            this.populateOccurrencesDictionary(childrenQuantifies);
             this.Content = content;
         }
 
@@ -28,7 +28,7 @@ namespace Wikipedia_XML_Generator.Models.DTD_Elements
             return false;
         }
 
-        private void popuateOccurrencesDictionary(Dictionary<String, char> childrenQuantifies)
+        private void populateOccurrencesDictionary(Dictionary<String, char> childrenQuantifies)
         {
             foreach(var item in childrenQuantifies)
             {
