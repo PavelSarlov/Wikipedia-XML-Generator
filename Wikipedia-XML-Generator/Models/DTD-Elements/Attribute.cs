@@ -23,7 +23,7 @@ namespace Wikipedia_XML_Generator.Models.DTD_Elements
 
         private bool validateValue(String value)
         {
-            if(this.type == AttributeTypes.ENUMERATION)
+            if(this.Type == AttributeTypes.ENUMERATION)
             {
                 return this.enumerations.Contains(value);
             }
