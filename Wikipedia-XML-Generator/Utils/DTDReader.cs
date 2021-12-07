@@ -6,9 +6,9 @@ using Wikipedia_XML_Generator.Models.DTD_Elements;
 using Wikipedia_XML_Generator.Models.Enums;
 using Attribute = Wikipedia_XML_Generator.Models.DTD_Elements.Attribute;
 
-namespace Wikipedia_XML_Generator.Utils.DTDReader
+namespace Wikipedia_XML_Generator.Utils
 {
-    public class DTDReader : IDTDReader
+    public class DTDReader
     {
         private String DTDtext;
         private List<String> elementsLines;
