@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Wikipedia_XML_Generator.Utils.DTDReader;
 using System.Xml;
 using Wikipedia_XML_Generator.Models.DTD_Elements;
 
@@ -10,11 +11,11 @@ namespace Wikipedia_XML_Generator.Utils
 {
     public class XMLGenerator
     {
-        private DTDReader reader;
+        private IDTDFileReader _reader;
 
         public  XMLGenerator(String filepath)
         {
-            this.reader = new DTDReader(filepath);
+            this._reader = new DTDFileReader(filepath);
         }
 
         private Dictionary<String, String> getRelations(Dictionary<String, Tuple<int, List<String>>> elements)
@@ -64,7 +65,7 @@ namespace Wikipedia_XML_Generator.Utils
         public async Task<StringBuilder> getXMLFromWikiTextAsync(String url)
         {
             Dictionary<String, Tuple<int, List<String>>> data = await WikiScrapper.GetContent(url);
-            if (this.reader.Status == -1 || data == null)
+            if (this._reader.GetStatus() == -1 || data == null)
             {
                 return null;
             }

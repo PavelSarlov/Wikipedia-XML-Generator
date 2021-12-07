@@ -6,33 +6,33 @@ using Wikipedia_XML_Generator.Models.DTD_Elements;
 using Wikipedia_XML_Generator.Models.Enums;
 using Attribute = Wikipedia_XML_Generator.Models.DTD_Elements.Attribute;
 
-namespace Wikipedia_XML_Generator.Utils
+namespace Wikipedia_XML_Generator.Utils.DTDReader
 {
-    public class DTDReader
+    public class DTDFileReader : IDTDFileReader
     {
         private String DTDtext;
         private List<String> elementsLines;
         private List<String> attibutesLines;
 
-        public DTDReader(String filepath)
+        public DTDFileReader(String filepath)
         {
             this.Status = FileManager.Read(filepath, out this.DTDtext);
             List<String> lines = this.DTDtext.Split("\r\n").ToList();
 
-            foreach(var l in lines)
+            foreach (var l in lines)
             {
-                if(l.StartsWith("<!ELEMENT"))
+                if (l.StartsWith("<!ELEMENT"))
                 {
                     elementsLines.Add(l);
                 }
-                else if(l.StartsWith("<!ATTLIST"))
+                else if (l.StartsWith("<!ATTLIST"))
                 {
                     attibutesLines.Add(l);
                 }
             }
         }
 
-        private List<String> getWordsInAttributeLine(String line)
+        private List<String> GetWordsInAttributeLine(String line)
         {
             List<String> parts = line.Remove(0, 1).Remove(line.Length - 1, 1).Split("\"").ToList();
             List<String> words = new List<String>();
@@ -49,7 +49,7 @@ namespace Wikipedia_XML_Generator.Utils
             return words;
         }
 
-        private void setAttributeType(String word, out AttributeTypes type)
+        private void SetAttributeType(String word, out AttributeTypes type)
         {
             type = word switch
             {
@@ -66,7 +66,7 @@ namespace Wikipedia_XML_Generator.Utils
             };
         }
 
-        private void setAttributeValuesType(String word, out AttributeValuesType valuesType)
+        private void SetAttributeValuesType(String word, out AttributeValuesType valuesType)
         {
             valuesType = word.Remove(0, 1) switch
             {
@@ -77,7 +77,7 @@ namespace Wikipedia_XML_Generator.Utils
             };
         }
 
-        public List<Element> getElements()
+        public List<Element> GetElements()
         {
             List<Element> elements = new List<Element>();
             foreach (var item in elementsLines)
@@ -86,7 +86,7 @@ namespace Wikipedia_XML_Generator.Utils
                 Dictionary<String, char> childrenQuantifies = new Dictionary<string, char>();
                 List<String> parts = this.DTDtext.Remove(0, 1).Remove(this.DTDtext.Length - 1, 1).Split("(").ToList();
                 name = parts[0].Split(" ")[1];
-                foreach(var element in parts[1].Remove(parts[1].Length -1 , 1).Replace(" ", "").Split(","))
+                foreach (var element in parts[1].Remove(parts[1].Length - 1, 1).Replace(" ", "").Split(","))
                 {
                     char quantify = element[element.Length - 1];
                     String e = element.Remove(element.Length - 1, 1);
@@ -97,34 +97,34 @@ namespace Wikipedia_XML_Generator.Utils
             return elements;
         }
 
-        public List<Attribute> getAttributes()
+        public List<Attribute> GetAttributes()
         {
             List<Attribute> attributes = new List<Attribute>();
-            foreach(var item in attibutesLines)
+            foreach (var item in attibutesLines)
             {
-                List<String> words = getWordsInAttributeLine(item);
+                List<String> words = GetWordsInAttributeLine(item);
 
                 String name = words[1], elementName = words[2];
                 AttributeTypes type;
-                setAttributeType(words[3], out type);
+                SetAttributeType(words[3], out type);
                 List<String> enumerations = null;
                 if (type == AttributeTypes.ENUMERATION)
                 {
-                    enumerations = words[3].Remove(0, 1).Remove(words[3].Length-1, 1).Split('|').ToList();
+                    enumerations = words[3].Remove(0, 1).Remove(words[3].Length - 1, 1).Split('|').ToList();
                 }
 
                 AttributeValuesType valuesType = AttributeValuesType.REQUIRED;
                 String value = null;
                 if (words.Count() > 4)
                 {
-                    setAttributeValuesType(words[4], out valuesType);
+                    SetAttributeValuesType(words[4], out valuesType);
                     if (valuesType == AttributeValuesType.VALUE)
                     {
                         value = words[4];
                     }
-                    else if(valuesType == AttributeValuesType.FIXED)
+                    else if (valuesType == AttributeValuesType.FIXED)
                     {
-                        if(words.Count() > 5)
+                        if (words.Count() > 5)
                         {
                             value = words[5];
                         }
@@ -137,6 +137,11 @@ namespace Wikipedia_XML_Generator.Utils
                 attributes.Add(new Attribute(name, elementName, type, valuesType, enumerations, value));
             }
             return attributes;
+        }
+
+        public int GetStatus()
+        {
+            return this.Status;
         }
 
         public int Status { get; set; }
