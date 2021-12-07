@@ -17,11 +17,49 @@ namespace Wikipedia_XML_Generator.Utils
             this.reader = new DTDReader(filepath);
         }
 
-        /*private bool validateXMLFile(out Dictionary<String, Tuple<int, List<String>>> elements)
+        private Dictionary<String, String> getRelations(Dictionary<String, Tuple<int, List<String>>> elements)
         {
-            List<Element> DTDElements = this.reader.getElements();
+            Dictionary<String, String> relations = new Dictionary<String, String>();
+            Stack<Tuple<String, int>> parents = new Stack<Tuple<string, int>>();
+            foreach(var e in elements)
+            {
+                if(parents.Count() == 0)
+                {
+                    relations[e.Key] = null;
+                    parents.Push(new Tuple<string, int>(e.Key, e.Value.Item1));
+                    continue;
+                }
+                while(parents.Peek().Item2 >= e.Value.Item1)
+                {
+                    parents.Pop();
+                }
+                if(parents.Peek().Item2 < e.Value.Item1)
+                {
+                    relations[e.Key] = parents.Peek().Item1;
+                }
+                parents.Push(new Tuple<string, int>(e.Key, e.Value.Item1));
+            }
+            return relations;
+        }
 
-        }*/
+        private Dictionary<String, List<String>> getHierarchy(Dictionary<String, Tuple<int, List<String>>> elements)
+        {
+            Dictionary<String, List<String>> hierarchy = new Dictionary<string, List<string>>();
+            foreach(var e in elements)
+            {
+                hierarchy[e.Key] = null;
+            }
+
+
+
+            return hierarchy;
+        }
+
+        //private bool validateXMLFile(out Dictionary<String, Tuple<int, List<String>>> elements)
+        //{
+        //    List<Element> DTDElements = this.reader.getElements();
+
+        //}
 
         public async Task<StringBuilder> getXMLFromWikiTextAsync(String url)
         {
