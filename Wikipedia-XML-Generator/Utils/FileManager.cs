@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Wikipedia_XML_Generator.Utils
 {
@@ -13,12 +11,13 @@ namespace Wikipedia_XML_Generator.Utils
         {
             try
             {
-                byte[] buf = StringToUTF8(value);
+                byte[] buf = StringConverter.StringToUTF8(value);
                 File.WriteAllBytes(filepath, buf);
                 return buf.Length;
             }
             catch(Exception e)
             {
+                Logger.Log(Console.Out, e.Message);
                 return -1;
             }
         }
@@ -27,25 +26,44 @@ namespace Wikipedia_XML_Generator.Utils
         {
             try
             {
-                byte[] buf = File.ReadAllBytes(filepath);
-                value = UTF8ToString(buf);
-                return buf.Length;
+                value = File.ReadAllText(filepath);
+                return StringConverter.StringToUTF8(value).Length;
             }
             catch (Exception e)
             {
-                value = "";
+                Logger.Log(Console.Out, e.Message);
+                value = string.Empty;
                 return -1;
             }
         }
 
-        private static byte[] StringToUTF8(string s)
+        public async static Task<int> WriteAsync(string filepath, string value)
         {
-            return new UTF8Encoding(true).GetBytes(s);
+            try
+            {
+                byte[] buf = StringConverter.StringToUTF8(value);
+                await File.WriteAllBytesAsync(filepath, buf);
+                return buf.Length;
+            }
+            catch (Exception e)
+            {
+                Logger.Log(Console.Out, e.Message);
+                return -1;
+            }
         }
 
-        private static string UTF8ToString(byte[] b)
+        public async static Task<string> ReadAsync(string filepath)
         {
-            return new UTF8Encoding(true).GetString(b);
+            try
+            {
+                var value = await File.ReadAllTextAsync(filepath);
+                return value;
+            }
+            catch (Exception e)
+            {
+                Logger.Log(Console.Out, e.Message);
+                return string.Empty;
+            }
         }
     }
 }
