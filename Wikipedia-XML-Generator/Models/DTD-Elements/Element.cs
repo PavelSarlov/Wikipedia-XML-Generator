@@ -16,7 +16,7 @@ namespace Wikipedia_XML_Generator.Models.DTD_Elements
             this.Name = name;
             if (childrenQuantifies != null)
             {
-                this.populateOccurrencesDictionary(childrenQuantifies);
+                this.PopulateOccurrencesDictionary(childrenQuantifies);
             }
             else
             {
@@ -26,7 +26,7 @@ namespace Wikipedia_XML_Generator.Models.DTD_Elements
             this.Content = content;
         }
 
-        private bool validateContent(String content)
+        private bool ValidateContent(String content)
         {
             if(this.childrenOccurrences.ContainsKey("#PCDATA"))
             {
@@ -35,7 +35,7 @@ namespace Wikipedia_XML_Generator.Models.DTD_Elements
             return false;
         }
 
-        private void populateOccurrencesDictionary(Dictionary<String, char> childrenQuantifies)
+        private void PopulateOccurrencesDictionary(Dictionary<String, char> childrenQuantifies)
         {
             foreach(var item in childrenQuantifies)
             {
@@ -51,7 +51,7 @@ namespace Wikipedia_XML_Generator.Models.DTD_Elements
             }
         }
 
-        public bool addChild(String elementName)
+        public bool AddChild(String elementName)
         {
             if (this.childrenOccurrences.ContainsKey(elementName))
             {
@@ -70,7 +70,7 @@ namespace Wikipedia_XML_Generator.Models.DTD_Elements
             return false;
         }
 
-        public bool isChildrenCountValid()
+        public bool IsChildrenCountValid()
         {
             foreach(var item in this.childrenOccurrences)
             {
@@ -105,13 +105,29 @@ namespace Wikipedia_XML_Generator.Models.DTD_Elements
             return true;
         }
 
+        public bool HasAChild(String name)
+        {
+            if(this.childrenOccurrences.ContainsKey(name))
+            {
+                return true;
+            }
+            foreach(var item in this.childrenInGroupOccurrences)
+            {
+                if(item.Key.Contains(name))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public String Name { get; private set; }
         public String Content
         {
             get { return this.content; }
             set
             {
-                if (this.validateContent(value) == true)
+                if (this.ValidateContent(value) == true)
                 {
                     this.content = value;
                 }

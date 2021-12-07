@@ -88,9 +88,13 @@ namespace Wikipedia_XML_Generator.Utils.DTDReader
                 name = parts[0].Split(" ")[1];
                 foreach (var element in parts[1].Remove(parts[1].Length - 1, 1).Replace(" ", "").Split(","))
                 {
-                    char quantify = element[element.Length - 1];
-                    String e = element.Remove(element.Length - 1, 1);
-                    childrenQuantifies[e] = quantify;
+                    char quantify = ' ';
+                    if (element[element.Length - 1] == '*' || element[element.Length - 1] == '+' || element[element.Length - 1] == '?')
+                    {
+                        quantify = element[element.Length - 1];
+                        element.Remove(element.Length - 1, 1);
+                    }
+                    childrenQuantifies[element] = quantify;
                 }
                 elements.Add(new Element(name, childrenQuantifies));
             }
