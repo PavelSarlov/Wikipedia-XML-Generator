@@ -1,6 +1,6 @@
 ﻿@using Wikipedia_XML_Generator.Models;
 
-@using (Html.BeginForm("Index_Post", "Home", FormMethod.Post))
+@using (Html.BeginForm("Index_Post", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
 
     <div class="inputs-container">
