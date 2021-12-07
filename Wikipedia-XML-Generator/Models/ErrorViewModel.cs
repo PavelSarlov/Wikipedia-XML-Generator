@@ -1,5 +1,3 @@
-using System;
-
 namespace Wikipedia_XML_Generator.Models
 {
     public class ErrorViewModel

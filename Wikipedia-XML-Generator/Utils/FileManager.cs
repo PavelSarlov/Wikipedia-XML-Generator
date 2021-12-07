@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Wikipedia_XML_Generator.Utils
@@ -27,6 +27,24 @@ namespace Wikipedia_XML_Generator.Utils
             try
             {
                 value = File.ReadAllText(filepath);
+                return StringConverter.StringToUTF8(value).Length;
+            }
+            catch (Exception e)
+            {
+                Logger.Log(Console.Out, e.Message);
+                value = string.Empty;
+                return -1;
+            }
+        }
+
+        public static int Read(IFormFile file, out string value)
+        {
+            try
+            {
+                using (var reader = new StreamReader(file.OpenReadStream()))
+                {
+                    value = reader.ReadToEnd();
+                }
                 return StringConverter.StringToUTF8(value).Length;
             }
             catch (Exception e)
