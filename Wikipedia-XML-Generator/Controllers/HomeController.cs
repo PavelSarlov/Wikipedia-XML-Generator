@@ -44,7 +44,9 @@ namespace Wikipedia_XML_Generator.Controllers
 
         public IActionResult Download(XmlDtdViewModel model)
         {
-            return Ok();
+            var fs = StringConverter.StringToUTF8(model.XML);
+            string contentType = "application/xml";
+            return new FileContentResult(fs, contentType);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

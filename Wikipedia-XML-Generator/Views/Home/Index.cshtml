@@ -19,7 +19,7 @@
                     and click below to generate XML document
                 </label>
                 <button id="btnGenerate" type="submit" name="btnGenerate" class="btn btn-danger input-hover">GENERATE</button>
-                <span class="btn btn-primary input-hover input-span"><i class="fa fa-download"></i> SAVE AS<input id="inputSave" name="inputSave" type="file" hidden /></span>
+                <button id="btnSave" class="btn btn-primary input-hover input-span"><i class="fa fa-download"></i> SAVE</button>
             </div>
             <div class="doc-input-container">
                 <textarea id="inputXml" class="doc-input" name="XML" type="text">@Model.XML</textarea>
@@ -30,6 +30,6 @@
 }
 
 @section Scripts {
-    <script language="javascript" type="text/javascript" src="https://codemirror.net/lib/codemirror.js"></script>
-    <script language="javascript" type="text/javascript" src="https://codemirror.net/mode/perl/perl.js"></script>
+    <script language="javascript" type="text/javascript" src="~/lib/codemirror/codemirror.js"></script>
+    <script language="javascript" type="text/javascript" src="~/lib/codemirror/mode/perl/perl.js"></script>
 }

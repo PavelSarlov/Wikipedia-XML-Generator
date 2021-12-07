@@ -44,4 +44,8 @@
         }
         editors[v.id] = editor;
     });
+
+    $('#btnSave').click(async () => {
+        await fetch('/home/download');
+    });
 });
