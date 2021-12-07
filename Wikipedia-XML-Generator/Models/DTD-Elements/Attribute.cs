@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Wikipedia_XML_Generator.Models.Enums;
 
 namespace Wikipedia_XML_Generator.Models.DTD_Elements
@@ -17,13 +15,13 @@ namespace Wikipedia_XML_Generator.Models.DTD_Elements
             this.ElementName = elementName;
             this.Type = type;
             this.enumerations = enumerations;
-            this.ValuesType= valuesType;
+            this.ValuesType = valuesType;
             this.Value = value;
         }
 
         private bool validateValue(String value)
         {
-            if(this.Type == AttributeTypes.ENUMERATION)
+            if (this.Type == AttributeTypes.ENUMERATION)
             {
                 return this.enumerations.Contains(value);
             }
@@ -32,12 +30,13 @@ namespace Wikipedia_XML_Generator.Models.DTD_Elements
 
         public String Name { get; private set; }
         public String ElementName { get; private set; }
-        public AttributeTypes Type { get; private set;}
+        public AttributeTypes Type { get; private set; }
         public AttributeValuesType ValuesType { get; private set; }
         public String Value
         {
             get { return this.value; }
-            set {
+            set
+            {
                 if (this.validateValue(value) == true)
                 {
                     this.value = value;
@@ -46,7 +45,7 @@ namespace Wikipedia_XML_Generator.Models.DTD_Elements
                 {
                     this.value = null;
                 }
-            } 
+            }
         }
     }
 }

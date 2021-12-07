@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Wikipedia_XML_Generator.Models.DTD_Elements;
 using Wikipedia_XML_Generator.Models.Enums;
 using Attribute = Wikipedia_XML_Generator.Models.DTD_Elements.Attribute;
@@ -18,16 +17,19 @@ namespace Wikipedia_XML_Generator.Utils.DTDReader
         {
             this.Status = FileManager.Read(filepath, out this.DTDtext);
             List<String> lines = this.DTDtext.Split("\r\n").ToList();
-
+            this.elementsLines = new List<String>();
+            this.attibutesLines = new List<String>();
+            this.Root = lines[0].Split("[")[0].Split(" ").Last();
             foreach (var l in lines)
             {
-                if (l.StartsWith("<!ELEMENT"))
+                String line = l.Remove(0, l.LastIndexOf("\t") + 1);
+                if (line.StartsWith("<!ELEMENT"))
                 {
-                    elementsLines.Add(l);
+                    this.elementsLines.Add(line);
                 }
-                else if (l.StartsWith("<!ATTLIST"))
+                else if (line.StartsWith("<!ATTLIST"))
                 {
-                    attibutesLines.Add(l);
+                    this.attibutesLines.Add(line);
                 }
             }
         }
@@ -77,16 +79,18 @@ namespace Wikipedia_XML_Generator.Utils.DTDReader
             };
         }
 
-        public List<Element> GetElements()
+        public Dictionary<String, Element> GetElements()
         {
-            List<Element> elements = new List<Element>();
-            foreach (var item in elementsLines)
+            Dictionary<String, Element> elements = new Dictionary<String, Element>();
+            foreach (var item in this.elementsLines)
             {
                 String name;
                 Dictionary<String, char> childrenQuantifies = new Dictionary<string, char>();
-                List<String> parts = this.DTDtext.Remove(0, 1).Remove(this.DTDtext.Length - 1, 1).Split("(").ToList();
+                String line = item.Remove(0, 1);
+                line.Remove(line.Length - 1, 1);
+                List<String> parts = line.Split("(").ToList();
                 name = parts[0].Split(" ")[1];
-                foreach (var element in parts[1].Remove(parts[1].Length - 1, 1).Replace(" ", "").Split(","))
+                foreach (var element in parts[1].Remove(parts[1].Length - 1, 1).Replace(" ", "").Replace(")", "").Split(","))
                 {
                     char quantify = ' ';
                     if (element[element.Length - 1] == '*' || element[element.Length - 1] == '+' || element[element.Length - 1] == '?')
@@ -96,14 +100,14 @@ namespace Wikipedia_XML_Generator.Utils.DTDReader
                     }
                     childrenQuantifies[element] = quantify;
                 }
-                elements.Add(new Element(name, childrenQuantifies));
+                elements[name] = new Element(name, childrenQuantifies);
             }
             return elements;
         }
 
-        public List<Attribute> GetAttributes()
+        public Dictionary<String, List<Attribute>> GetAttributes()
         {
-            List<Attribute> attributes = new List<Attribute>();
+            Dictionary<String, List<Attribute>> attributes = new Dictionary<String, List<Attribute>>();
             foreach (var item in attibutesLines)
             {
                 List<String> words = GetWordsInAttributeLine(item);
@@ -138,7 +142,7 @@ namespace Wikipedia_XML_Generator.Utils.DTDReader
                         }
                     }
                 }
-                attributes.Add(new Attribute(name, elementName, type, valuesType, enumerations, value));
+                attributes[elementName].Add(new Attribute(name, elementName, type, valuesType, enumerations, value));
             }
             return attributes;
         }
@@ -148,6 +152,12 @@ namespace Wikipedia_XML_Generator.Utils.DTDReader
             return this.Status;
         }
 
+        public String GetRoot()
+        {
+            return this.Root;
+        }
+
         public int Status { get; set; }
+        public String Root { get; set; }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 using System.Xml;
 using System.Xml.Schema;
 
@@ -57,7 +56,7 @@ namespace Wikipedia_XML_Generator.Utils.XmlDTDValidator
                     while (reader.Read()) { }
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.Log(Console.Out, e.Message);
             }
@@ -82,7 +81,7 @@ namespace Wikipedia_XML_Generator.Utils.XmlDTDValidator
                     return Validate(stream);
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.Log(Console.Out, e.Message);
             }

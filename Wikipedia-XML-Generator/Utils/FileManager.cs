@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Wikipedia_XML_Generator.Utils
@@ -15,7 +14,7 @@ namespace Wikipedia_XML_Generator.Utils
                 File.WriteAllBytes(filepath, buf);
                 return buf.Length;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.Log(Console.Out, e.Message);
                 return -1;
