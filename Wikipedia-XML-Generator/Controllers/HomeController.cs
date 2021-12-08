@@ -3,9 +3,11 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using Wikipedia_XML_Generator.Models;
 using Wikipedia_XML_Generator.Utils;
 using Wikipedia_XML_Generator.Utils.XMLFileGenerator;
+using System.Web;
 
 namespace Wikipedia_XML_Generator.Controllers
 {
@@ -20,7 +22,7 @@ namespace Wikipedia_XML_Generator.Controllers
 
         [HttpPost]
         [HttpGet]
-        public IActionResult Index(XmlDtdViewModel model)
+        public async Task<IActionResult> Index(XmlDtdViewModel model)
         {
             try
             {
@@ -28,12 +30,12 @@ namespace Wikipedia_XML_Generator.Controllers
                 {
                     if (Request.Form.Files.Count > 0)
                     {
-                        return UploadDTD(model);
+                        return await UploadDTD(model);
                     }
 
                     if (Request.Form.TryGetValue("btnSubmit", out var value))
                     {
-                        return this.GetType().GetMethod(value).Invoke(this, new object[] { model }) as IActionResult;
+                        return await (this.GetType().GetMethod(value).Invoke(this, new object[] { model }) as Task<IActionResult>);
                     }
                 }
             }
@@ -46,12 +48,11 @@ namespace Wikipedia_XML_Generator.Controllers
         }
 
         [NonAction]
-        public IActionResult UploadDTD(XmlDtdViewModel model)
+        public async Task<IActionResult> UploadDTD(XmlDtdViewModel model)
         {
             try
             {
-                FileManager.Read(model.FileDTD, out string dtd);
-                model.DTD = dtd;
+                model.DTD = await FileManager.ReadAsync(model.FileDTD); ;
             }
             catch (Exception e)
             {
@@ -62,19 +63,20 @@ namespace Wikipedia_XML_Generator.Controllers
         }
 
         [NonAction]
-        public IActionResult Generate(XmlDtdViewModel model)
+        public async Task<IActionResult> Generate(XmlDtdViewModel model)
         {
             try
             {
                 using (var dtdStream = new MemoryStream())
                 {
-                    if (FileManager.Write(dtdStream, model.DTD) == -1) throw new IOException();
+                    if (await FileManager.WriteAsync(dtdStream, model.DTD) == -1) throw new IOException();
                     dtdStream.Position = 0;
-                       
+                    
                     var xmlGenerator = new XMLGenerator(dtdStream);
-                    using (var xmlStream = TypesConverter.XmlToStream(xmlGenerator.GetXMLFromWikiTextAsync(model.WikiPage).Result).Result)
+                    var xml = await xmlGenerator.GetXMLFromWikiTextAsync(HttpUtility.UrlDecode(model.WikiPage));
+                    using (var xmlStream = await TypesConverter.XmlToStream(xml))
                     {
-                        model.XML = FileManager.ReadAsync(xmlStream).Result;
+                        model.XML = await FileManager.ReadAsync(xmlStream);
                     }
                 }
             }
@@ -87,11 +89,11 @@ namespace Wikipedia_XML_Generator.Controllers
         }
 
         [NonAction]
-        public IActionResult Download(XmlDtdViewModel model)
+        public async Task<IActionResult> Download(XmlDtdViewModel model)
         {
             try
             {
-                var content = TypesConverter.StringToUTF8(model.XML).Result;
+                var content = await TypesConverter.StringToUTF8(model.XML);
                 string contentType = "text/xml";
                 return new FileContentResult(content, contentType) { FileDownloadName = "wiki.xml" };
             }
