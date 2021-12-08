@@ -1,9 +1,8 @@
 ﻿$(document).ready(function () {
 
-    async function sendRequest(path, data, onload) {
+    async function sendRequest(method, path, data, onload) {
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", path);
-        xhr.setRequestHeader("Accept", "application/json");
+        xhr.open(method, path);
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.onload = onload;
         xhr.send(JSON.stringify(data));
@@ -11,16 +10,19 @@
 
     var editors = {};
 
-    async function editorOnChangeHandler(cm, change) {
-        var data = {
+    async function getModel() {
+        return {
             "DTD": editors["inputDtd"].getValue(),
-            "XML": cm.getValue(),
+            "XML": editors["inputXml"].getValue(),
             "WikiPage": $('#inputWiki').val()
         };
+    }
+
+    async function editorOnChangeHandler(cm, change) {
+        var data = await getModel();
 
         var onload = () => {
             var xhr = event.target;
-            console.log(xhr.responseText);
             if (xhr.responseText != "true" && cm.getValue() != '') {
                 $('#inputXml').nextAll('.CodeMirror').css('border', '2px solid red');
             }
@@ -29,7 +31,7 @@
             }
         }
 
-        await sendRequest('/validator/validate', data, onload);
+        await sendRequest('POST', '/validator/validate', data, onload);
     }
 
     $('.doc-input').each((i, v) => {
@@ -43,10 +45,6 @@
             editor.on("change", editorOnChangeHandler);
         }
         editors[v.id] = editor;
-    });
-
-    $('#btnSave').click(async () => {
-        await fetch('/home/download');
     });
 
     $('#inputDtdFile').on('input', async () => {

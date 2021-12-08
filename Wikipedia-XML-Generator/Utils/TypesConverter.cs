@@ -35,53 +35,23 @@ namespace Wikipedia_XML_Generator.Utils
             }
         }
 
-        public async static Task<string> XmlToString(XmlDocument doc)
-        {
-            try
-            {
-                var result = new StringBuilder();
-                using (var stream = new MemoryStream())
-                {
-                    doc.Save(stream);
-                    stream.Position = 0;
-
-                    XmlWriterSettings wsettings = new XmlWriterSettings();
-                    wsettings.Async = true;
-                    wsettings.Encoding = Encoding.UTF8;
-                    wsettings.Indent = true;
-
-                    XmlReaderSettings rsettings = new XmlReaderSettings();
-                    rsettings.Async = true;
-
-                    using (var writer = XmlWriter.Create(result, wsettings))
-                    {
-                        writer.WriteStartDocument();
-
-                        using (var reader = XmlReader.Create(stream, rsettings))
-                        {
-                            while (await reader.ReadAsync())
-                            {
-                                await writer.WriteNodeAsync(reader, true);
-                            }
-                        }
-                    }
-                }
-
-                return result.ToString();
-            }
-            catch (Exception e)
-            {
-                Logger.LogAsync(Console.Out, e.Message);
-                return null;
-            }
-        }
-
         public async static Task<Stream> XmlToStream(XmlDocument doc)
         {
             try
             {
                 var stream = new MemoryStream();
-                doc.Save(stream);
+
+                XmlWriterSettings wsettings = new XmlWriterSettings();
+                wsettings.Async = true;
+                wsettings.Encoding = Encoding.UTF8;
+                wsettings.Indent = true;
+
+                using (var writer = XmlWriter.Create(stream, wsettings))
+                {
+                    doc.Save(writer);
+                    await writer.FlushAsync();
+                }
+
                 stream.Position = 0;
                 return stream;
             }

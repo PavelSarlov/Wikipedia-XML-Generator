@@ -55,6 +55,24 @@ namespace Wikipedia_XML_Generator.Utils
             }
         }
 
+        public static int Read(Stream file, out string value)
+        {
+            try
+            {
+                using (var reader = new StreamReader(file))
+                {
+                    value = reader.ReadToEnd();
+                }
+                return TypesConverter.StringToUTF8(value).Result.Length;
+            }
+            catch (Exception e)
+            {
+                Logger.LogAsync(Console.Out, e.Message);
+                value = string.Empty;
+                return -1;
+            }
+        }
+
         public async static Task<int> WriteAsync(string filepath, string value)
         {
             try
@@ -86,20 +104,40 @@ namespace Wikipedia_XML_Generator.Utils
 
         public async static Task<string> ReadAsync(IFormFile file)
         {
+            string value = String.Empty;
+
             try
             {
-                string value = String.Empty;
                 using (var reader = new StreamReader(file.OpenReadStream()))
                 {
                     value = await reader.ReadToEndAsync();
                 }
-                return value;
             }
             catch (Exception e)
             {
                 Logger.LogAsync(Console.Out, e.Message);
-                return string.Empty;
             }
+
+            return value;
+        }
+
+        public async static Task<string> Read(Stream file)
+        {
+            string value = string.Empty;
+
+            try
+            {
+                using (var reader = new StreamReader(file))
+                {
+                    value = await reader.ReadToEndAsync();
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.LogAsync(Console.Out, e.Message);
+            }
+
+            return value;
         }
     }
 }

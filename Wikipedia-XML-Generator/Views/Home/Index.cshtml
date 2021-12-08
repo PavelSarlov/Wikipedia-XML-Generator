@@ -1,6 +1,6 @@
 ﻿@using Wikipedia_XML_Generator.Models;
 
-@using (Html.BeginForm("Generate", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+@using (Html.BeginForm("Index", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
 
     <div class="inputs-container">
@@ -18,9 +18,9 @@
                     <span id="spanLoad" class="input-hover input-span">load from file<input id="inputDtdFile" name="FileDTD" type="file" hidden /></span><br>
                     and click below to generate XML document
                 </label>
-                <button id="btnGenerate" type="submit" name="btnGenerate" class="btn btn-danger input-hover">GENERATE</button>
-                <button type="button" id="btnSave" class="btn btn-primary input-hover input-span"><i class="fa fa-download"></i> SAVE</button>
-                <button type="button" id="btnBeautify" class="btn btn-success input-hover input-span">Beautify</button>
+                <button id="btnGenerate" type="submit" name="btnSubmit" value="Generate" class="btn btn-danger input-hover">GENERATE</button>
+                <button id="btnSave"  type="submit" name="btnSubmit" value="Download" class="btn btn-primary input-hover input-span"><i class="fa fa-download"></i> DOWNLOAD</button>
+                <button id="btnBeautify" type="button" class="btn btn-success input-hover input-span">Beautify</button>
             </div>
             <div class="doc-input-container">
                 <textarea id="inputXml" class="doc-input" name="XML" type="text">@Model.XML</textarea>
