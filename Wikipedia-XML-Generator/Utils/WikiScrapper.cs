@@ -56,7 +56,7 @@ namespace Wikipedia_XML_Generator.Utils
             }
             catch (Exception e)
             {
-                await Logger.LogAsync(Console.Out, e.Message);
+                Logger.LogAsync(Console.Out, e.Message);
                 return null;
             }
         }
@@ -94,7 +94,7 @@ namespace Wikipedia_XML_Generator.Utils
             }
             catch (Exception e)
             {
-                await Logger.LogAsync(Console.Out, e.Message);
+                Logger.LogAsync(Console.Out, e.Message);
                 return null;
             }
         }

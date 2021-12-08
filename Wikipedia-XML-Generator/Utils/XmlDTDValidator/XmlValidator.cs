@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Text;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 
@@ -35,7 +37,7 @@ namespace Wikipedia_XML_Generator.Utils.XmlDTDValidator
             }
             catch (Exception e)
             {
-                Logger.Log(Console.Out, e.Message);
+                Logger.LogAsync(Console.Out, e.Message);
             }
 
             return false;
@@ -58,7 +60,7 @@ namespace Wikipedia_XML_Generator.Utils.XmlDTDValidator
             }
             catch (Exception e)
             {
-                Logger.Log(Console.Out, e.Message);
+                Logger.LogAsync(Console.Out, e.Message);
             }
 
             return Result;
@@ -83,7 +85,7 @@ namespace Wikipedia_XML_Generator.Utils.XmlDTDValidator
             }
             catch (Exception e)
             {
-                Logger.Log(Console.Out, e.Message);
+                Logger.LogAsync(Console.Out, e.Message);
             }
 
             return false;

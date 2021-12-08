@@ -7,7 +7,7 @@ namespace Wikipedia_XML_Generator.Utils
     {
         public static void Log(Stream str, string msg)
         {
-            var buf = StringConverter.StringToUTF8(msg + '\n');
+            var buf = TypesConverter.StringToUTF8(msg + '\n').Result;
             str.Write(buf, 0, buf.Length);
         }
 
@@ -21,7 +21,7 @@ namespace Wikipedia_XML_Generator.Utils
 
         public async static Task LogAsync(Stream str, string msg)
         {
-            var buf = StringConverter.StringToUTF8(msg + '\n');
+            var buf = await TypesConverter.StringToUTF8(msg + '\n');
             await str.WriteAsync(buf, 0, buf.Length);
         }
 
