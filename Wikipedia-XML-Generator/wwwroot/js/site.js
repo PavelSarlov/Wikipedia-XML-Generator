@@ -47,18 +47,6 @@
         editors[v.id] = editor;
     });
 
-    $('#inputDtdFile').on('input', async () => {
-        var file = event.target.files[0];
-        var fileReader = new FileReader();
-
-        fileReader.onload = (loadedEvent) => {
-            var contents = loadedEvent.target.result;
-            editors["inputDtd"].getDoc().setValue(contents);
-        }
-
-        fileReader.readAsText(file, "UTF-8");
-    });
-
     $('#btnBeautify').on('click', async () => {
         var edited = html_beautify(editors["inputXml"].getValue(), {
             "indent_size": "4",
@@ -82,4 +70,6 @@
 
         editors["inputXml"].getDoc().setValue(edited);
     });
+
+    editorOnChangeHandler(editors["inputXml"]);
 });

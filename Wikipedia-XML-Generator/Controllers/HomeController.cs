@@ -26,6 +26,11 @@ namespace Wikipedia_XML_Generator.Controllers
             {
                 if (Request.Method == "POST")
                 {
+                    if (Request.Form.Files.Count > 0)
+                    {
+                        return UploadDTD(model);
+                    }
+
                     if (Request.Form.TryGetValue("btnSubmit", out var value))
                     {
                         return this.GetType().GetMethod(value).Invoke(this, new object[] { model }) as IActionResult;
@@ -40,13 +45,28 @@ namespace Wikipedia_XML_Generator.Controllers
             return View(model);
         }
 
+        public IActionResult UploadDTD(XmlDtdViewModel model)
+        {
+            try
+            {
+                FileManager.Read(model.FileDTD, out string dtd);
+                model.DTD = dtd;
+            }
+            catch (Exception e)
+            {
+                Logger.LogAsync(Console.Out, e.Message);
+            }
+
+            return View("Index", model);
+        }
+
         [NonAction]
         public IActionResult Generate(XmlDtdViewModel model)
         {
             try
             {
                 var doc = WikiScrapper.GetXml(model.WikiPage).Result;
-                model.XML = FileManager.Read(TypesConverter.XmlToStream(doc).Result).Result;
+                model.XML = FileManager.ReadAsync(TypesConverter.XmlToStream(doc).Result).Result;
             }
             catch (Exception e)
             {

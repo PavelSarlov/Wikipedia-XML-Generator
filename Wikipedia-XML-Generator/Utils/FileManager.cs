@@ -7,36 +7,43 @@ namespace Wikipedia_XML_Generator.Utils
 {
     public static class FileManager
     {
-        public static int Write(string filepath, string value)
+        #region Writers
+        public static int Write(Stream file, string value)
         {
             try
             {
-                byte[] buf = TypesConverter.StringToUTF8(value).Result;
-                File.WriteAllBytes(filepath, buf);
-                return buf.Length;
-            }
-            catch (Exception e)
-            {
-                Logger.LogAsync(Console.Out, e.Message);
-                return -1;
-            }
-        }
-
-        public static int Read(string filepath, out string value)
-        {
-            try
-            {
-                value = File.ReadAllText(filepath);
+                using (var writer = new StreamWriter(file))
+                {
+                    writer.Write(value);
+                }
                 return TypesConverter.StringToUTF8(value).Result.Length;
             }
             catch (Exception e)
             {
                 Logger.LogAsync(Console.Out, e.Message);
-                value = string.Empty;
                 return -1;
             }
         }
 
+        public async static Task<int> WriteAsync(Stream file, string value)
+        {
+            try
+            {
+                using (var writer = new StreamWriter(file))
+                {
+                    await writer.WriteAsync(value);
+                }
+                return TypesConverter.StringToUTF8(value).Result.Length;
+            }
+            catch (Exception e)
+            {
+                Logger.LogAsync(Console.Out, e.Message);
+                return -1;
+            }
+        }
+        #endregion
+
+        #region Readers
         public static int Read(IFormFile file, out string value)
         {
             try
@@ -73,35 +80,6 @@ namespace Wikipedia_XML_Generator.Utils
             }
         }
 
-        public async static Task<int> WriteAsync(string filepath, string value)
-        {
-            try
-            {
-                byte[] buf = await TypesConverter.StringToUTF8(value);
-                await File.WriteAllBytesAsync(filepath, buf);
-                return buf.Length;
-            }
-            catch (Exception e)
-            {
-                Logger.LogAsync(Console.Out, e.Message);
-                return -1;
-            }
-        }
-
-        public async static Task<string> ReadAsync(string filepath)
-        {
-            try
-            {
-                var value = await File.ReadAllTextAsync(filepath);
-                return value;
-            }
-            catch (Exception e)
-            {
-                Logger.LogAsync(Console.Out, e.Message);
-                return string.Empty;
-            }
-        }
-
         public async static Task<string> ReadAsync(IFormFile file)
         {
             string value = String.Empty;
@@ -121,7 +99,7 @@ namespace Wikipedia_XML_Generator.Utils
             return value;
         }
 
-        public async static Task<string> Read(Stream file)
+        public async static Task<string> ReadAsync(Stream file)
         {
             string value = string.Empty;
 
@@ -139,5 +117,6 @@ namespace Wikipedia_XML_Generator.Utils
 
             return value;
         }
+        #endregion
     }
 }
