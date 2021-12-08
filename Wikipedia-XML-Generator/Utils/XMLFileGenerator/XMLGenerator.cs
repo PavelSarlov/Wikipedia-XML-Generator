@@ -125,12 +125,13 @@ namespace Wikipedia_XML_Generator.Utils.XMLFileGenerator
                                 currentElement[0].Attributes.SetNamedItem(attr);
                             }
                         }
-                        if (currentElement[0].InnerText != null)
-                        {
-                            e.Value.AddChild("#PCDATA");
-                        }
                         foreach (XmlNode n in children)
                         {
+                            if (n.NodeType == XmlNodeType.Text)
+                            {
+                                e.Value.AddChild("#PCDATA");
+                                continue;
+                            }
                             if (e.Value.HasAChild(n.Name))
                             {
                                 e.Value.AddChild(n.Name);

@@ -12,6 +12,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Wikipedia_XML_Generator.Models;
 using Wikipedia_XML_Generator.Utils;
+using Wikipedia_XML_Generator.Utils.XMLFileGenerator;
+using System.Xml;
 
 namespace Wikipedia_XML_Generator.Controllers
 {
@@ -26,7 +28,7 @@ namespace Wikipedia_XML_Generator.Controllers
 
         [HttpPost]
         [HttpGet]
-        public IActionResult Index(XmlDtdViewModel model)
+        public async Task<IActionResult> IndexAsync(XmlDtdViewModel model)
         {
             try
             {
@@ -39,7 +41,8 @@ namespace Wikipedia_XML_Generator.Controllers
 
                     if (Request.Form.TryGetValue("btnSubmit", out var value))
                     {
-                        return this.GetType().GetMethod(value).Invoke(this, new object[] { model }) as IActionResult;
+                        await this.GenerateAsync(model);
+                        //return this.GetType().GetMethod(value).Invoke(this, new object[] { model }) as IActionResult;
                     }
                 }
             }
@@ -67,11 +70,22 @@ namespace Wikipedia_XML_Generator.Controllers
         }
 
         [NonAction]
-        public IActionResult Generate(XmlDtdViewModel model)
+        public async Task<IActionResult> GenerateAsync(XmlDtdViewModel model)
         {
             try
             {
-                var doc = WikiScrapper.GetXml(model.WikiPage).Result;
+                XmlDocument doc = new XmlDocument();
+                if (model.FileDTD != null)
+                {
+                    IXMLGenerator _generator = new XMLGenerator(model.FileDTD);
+                    doc = await _generator.GetXMLFromWikiTextAsync(model.WikiPage);
+                }
+                else if (model.DTD != null)
+                {
+                    Stream file = await TypesConverter.StringToSteam(model.DTD);
+                    IXMLGenerator _generator = new XMLGenerator(file);
+                    doc = await _generator.GetXMLFromWikiTextAsync(model.WikiPage);
+                }
                 model.XML = FileManager.ReadAsync(TypesConverter.XmlToStream(doc).Result).Result;
             }
             catch (Exception e)
