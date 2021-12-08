@@ -9,19 +9,19 @@ using Attribute = Wikipedia_XML_Generator.Models.DTD_Elements.Attribute;
 
 namespace Wikipedia_XML_Generator.Utils.DTDReader
 {
-    public class DTDFileReader : IDTDFileReader
+    public class XMLFileGenerator : IDTDFileReader
     {
         private String DTDtext;
         private List<String> elementsLines;
         private List<String> attibutesLines;
 
-        public DTDFileReader(Stream file)
+        public XMLFileGenerator(Stream file)
         {
             this.Status = FileManager.Read(file, out this.DTDtext);
             this.FieldSetter();
         }
 
-        public DTDFileReader(IFormFile file)
+        public XMLFileGenerator(IFormFile file)
         {
             this.Status = FileManager.Read(file, out this.DTDtext);
             this.FieldSetter();
@@ -32,7 +32,7 @@ namespace Wikipedia_XML_Generator.Utils.DTDReader
             List<String> lines = this.DTDtext.Split("\r\n").ToList();
             this.elementsLines = new List<String>();
             this.attibutesLines = new List<String>();
-            this.Root = lines[0].Split("[")[0].Split(" ").Last().ToUpper();
+            this.Root = lines[0].Split("(")[0].Split(" ").Last().ToUpper();
             foreach (var l in lines)
             {
                 String line = l.Remove(0, l.LastIndexOf("\t") + 1);

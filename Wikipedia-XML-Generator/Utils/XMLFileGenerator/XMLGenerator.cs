@@ -17,12 +17,12 @@ namespace Wikipedia_XML_Generator.Utils.XMLFileGenerator
 
         public XMLGenerator(Stream file)
         {
-            this._reader = new DTDFileReader(file);
+            this._reader = new DTDReader.XMLFileGenerator(file);
         }
 
         public XMLGenerator(IFormFile file)
         {
-            this._reader = new DTDFileReader(file);
+            this._reader = new DTDReader.XMLFileGenerator(file);
         }
 
         private void AddAttributesToNode(ref XmlElement el, Dictionary<String, List<Attribute>> DTDAttributes)
@@ -90,7 +90,7 @@ namespace Wikipedia_XML_Generator.Utils.XMLFileGenerator
             }
             catch (Exception e)
             {
-                await Logger.LogAsync(Console.Out, e.Message);
+                Logger.LogAsync(Console.Out, e.Message);
                 return null;
             }
         }
@@ -151,7 +151,7 @@ namespace Wikipedia_XML_Generator.Utils.XMLFileGenerator
             }
             catch (Exception e)
             {
-                Logger.Log(Console.Out, e.Message);
+                Logger.LogAsync(Console.Out, e.Message);
                 return false;
             }
         }

@@ -30,10 +30,10 @@ namespace Wikipedia_XML_Generator.Utils
                 var json = JObject.Parse(response);
                 var sections = new Dictionary<string, Tuple<int, List<string>>>();
 
-                var currentTitle = json.SelectToken("$.query.pages.*.title").ToString().ToUpper();
+                var currentTitle = json.SelectToken("$.query.pages.*.title").ToString().Trim().Replace(' ', '_').ToUpper();
                 sections.Add(currentTitle, new Tuple<int, List<string>>(1, new List<string>()));
 
-                Regex rg = new Regex("(==+)([\\w ]+)(==+)");
+                Regex rg = new Regex("(==+)([^=]+)(==+)");
 
                 foreach (var line in json.SelectToken("$.query.pages.*.extract").ToString().Split('\n'))
                 {

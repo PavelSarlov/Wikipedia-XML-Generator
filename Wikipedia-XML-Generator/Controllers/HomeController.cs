@@ -1,17 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Collections.Generic;
-using System.Collections.Generic;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+using System.IO;
 using Wikipedia_XML_Generator.Models;
 using Wikipedia_XML_Generator.Utils;
+using Wikipedia_XML_Generator.Utils.XMLFileGenerator;
 
 namespace Wikipedia_XML_Generator.Controllers
 {
@@ -51,6 +45,7 @@ namespace Wikipedia_XML_Generator.Controllers
             return View(model);
         }
 
+        [NonAction]
         public IActionResult UploadDTD(XmlDtdViewModel model)
         {
             try
@@ -71,8 +66,17 @@ namespace Wikipedia_XML_Generator.Controllers
         {
             try
             {
-                var doc = WikiScrapper.GetXml(model.WikiPage).Result;
-                model.XML = FileManager.ReadAsync(TypesConverter.XmlToStream(doc).Result).Result;
+                using (var dtdStream = new MemoryStream())
+                {
+                    if (FileManager.Write(dtdStream, model.DTD) == -1) throw new IOException();
+                    dtdStream.Position = 0;
+                       
+                    var xmlGenerator = new XMLGenerator(dtdStream);
+                    using (var xmlStream = TypesConverter.XmlToStream(xmlGenerator.GetXMLFromWikiTextAsync(model.WikiPage).Result).Result)
+                    {
+                        model.XML = FileManager.ReadAsync(xmlStream).Result;
+                    }
+                }
             }
             catch (Exception e)
             {
