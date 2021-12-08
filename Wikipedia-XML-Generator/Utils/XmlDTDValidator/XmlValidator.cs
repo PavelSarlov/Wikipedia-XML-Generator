@@ -58,7 +58,7 @@ namespace Wikipedia_XML_Generator.Utils.XmlDTDValidator
                     while (reader.Read()) { }
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.LogAsync(Console.Out, e.Message);
             }
@@ -83,7 +83,7 @@ namespace Wikipedia_XML_Generator.Utils.XmlDTDValidator
                     return Validate(stream);
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.LogAsync(Console.Out, e.Message);
             }

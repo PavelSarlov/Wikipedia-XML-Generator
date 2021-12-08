@@ -2,8 +2,14 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 using System.IO;
+using System.Collections.Generic;
+using System.Collections.Generic;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 using Wikipedia_XML_Generator.Models;
 using Wikipedia_XML_Generator.Utils;
 

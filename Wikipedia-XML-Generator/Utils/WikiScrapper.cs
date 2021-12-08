@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 using System.Xml;
 
 namespace Wikipedia_XML_Generator.Utils
@@ -16,7 +16,7 @@ namespace Wikipedia_XML_Generator.Utils
 
         public static async Task<Dictionary<string, Tuple<int, List<string>>>> GetContent(string url)
         {
-            if(!Regex.IsMatch(url, urlPattern))
+            if (!Regex.IsMatch(url, urlPattern))
             {
                 return null;
             }
@@ -30,7 +30,7 @@ namespace Wikipedia_XML_Generator.Utils
                 var json = JObject.Parse(response);
                 var sections = new Dictionary<string, Tuple<int, List<string>>>();
 
-                var currentTitle = json.SelectToken("$.query.pages.*.title").ToString();
+                var currentTitle = json.SelectToken("$.query.pages.*.title").ToString().ToUpper();
                 sections.Add(currentTitle, new Tuple<int, List<string>>(1, new List<string>()));
 
                 Regex rg = new Regex("(==+)([\\w ]+)(==+)");
@@ -43,7 +43,7 @@ namespace Wikipedia_XML_Generator.Utils
 
                     if (match.Success)
                     {
-                        currentTitle = match.Groups[2].Value.Trim().Replace(' ', '_');
+                        currentTitle = match.Groups[2].Value.Trim().Replace(' ', '_').ToUpper();
                         sections.Add(currentTitle, new Tuple<int, List<string>>(match.Groups[1].Length, new List<string>()));
                     }
                     else
