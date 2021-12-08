@@ -18,6 +18,27 @@ namespace Wikipedia_XML_Generator.Utils.XMLFileGenerator
             this._reader = new DTDFileReader(filepath);
         }
 
+        private void AddAttributesToNode(ref XmlElement el, Dictionary<String, List<Attribute>> DTDAttributes)
+        {
+            XmlDocument doc = new XmlDocument();
+            if (DTDAttributes.ContainsKey(el.Name))
+            {
+                foreach (var item in DTDAttributes[el.Name])
+                {
+                    XmlAttribute attr = doc.CreateAttribute(item.Name);
+                    if (item.Value != null)
+                    {
+                        attr.Value = item.Value;
+                    }
+                    else
+                    {
+                        attr.Value = "N/A";
+                    }
+                    el.Attributes.SetNamedItem(attr);
+                }
+            }
+        }
+
         private async Task<XmlDocument> GenerateXMLFileAsync(Dictionary<String, Element> DTDElements, Dictionary<String, List<Attribute>> DTDAttributes)
         {
             try
@@ -25,22 +46,7 @@ namespace Wikipedia_XML_Generator.Utils.XMLFileGenerator
                 XmlDocument doc = new XmlDocument();
                 doc.CreateXmlDeclaration("1.0", "UTF-8", null);
                 XmlElement el = doc.CreateElement(string.Empty, this._reader.GetRoot(), string.Empty);
-                if (DTDAttributes.ContainsKey(this._reader.GetRoot()))
-                {
-                    foreach (var item in DTDAttributes[this._reader.GetRoot()])
-                    {
-                        XmlAttribute attr = doc.CreateAttribute(item.Name);
-                        if (item.Value != null)
-                        {
-                            attr.Value = item.Value;
-                        }
-                        else
-                        {
-                            attr.Value = "N/A";
-                        }
-                        el.Attributes.SetNamedItem(attr);
-                    }
-                }
+                this.AddAttributesToNode(ref el, DTDAttributes);
                 doc.AppendChild(el);
                 Queue<XmlNode> nextElements = new Queue<XmlNode>();
                 nextElements.Enqueue(el);
@@ -48,57 +54,29 @@ namespace Wikipedia_XML_Generator.Utils.XMLFileGenerator
                 while (nextElements.Count() != 0)
                 {
                     XmlNode node = nextElements.Dequeue();
-                    
+
                     foreach (var e in DTDElements[node.Name].ChildrenOccurrences)
                     {
-                        if(e.Value.Item2 == '+' || e.Value.Item2 == ' ')
+                        if (e.Key == "#PCDATA")
                         {
-                            XmlElement newEl = doc.CreateElement(string.Empty, e.Key, string.Empty);
-                            if (DTDAttributes.ContainsKey(this._reader.GetRoot()))
-                            {
-                                foreach (var item in DTDAttributes[this._reader.GetRoot()])
-                                {
-                                    XmlAttribute attr = doc.CreateAttribute(item.Name);
-                                    if (item.Value != null)
-                                    {
-                                        attr.Value = item.Value;
-                                    }
-                                    else
-                                    {
-                                        attr.Value = "N/A";
-                                    }
-                                    newEl.Attributes.SetNamedItem(attr);
-                                }
-                            }
-                            node.AppendChild(newEl);
-                            nextElements.Enqueue(newEl);
+                            continue;
                         }
+                        XmlElement newEl = doc.CreateElement(string.Empty, e.Key, string.Empty);
+                        this.AddAttributesToNode(ref newEl, DTDAttributes);
+                        node.AppendChild(newEl);
+                        nextElements.Enqueue(newEl);
                     }
 
                     foreach (var e in DTDElements[node.Name].ChildrenInGroupOccurrences)
                     {
-                        if (e.Value.Item2 == '+' || e.Value.Item2 == ' ')
+                        if (e.Key[0] == "#PCDATA")
                         {
-                            XmlElement newEl = doc.CreateElement(string.Empty, e.Key[0], string.Empty);
-                            if (DTDAttributes.ContainsKey(this._reader.GetRoot()))
-                            {
-                                foreach (var item in DTDAttributes[this._reader.GetRoot()])
-                                {
-                                    XmlAttribute attr = doc.CreateAttribute(item.Name);
-                                    if (item.Value != null)
-                                    {
-                                        attr.Value = item.Value;
-                                    }
-                                    else
-                                    {
-                                        attr.Value = "N/A";
-                                    }
-                                    newEl.Attributes.SetNamedItem(attr);
-                                }
-                            }
-                            node.AppendChild(newEl);
-                            nextElements.Enqueue(newEl);
+                            continue;
                         }
+                        XmlElement newEl = doc.CreateElement(string.Empty, e.Key[0], string.Empty);
+                        this.AddAttributesToNode(ref newEl, DTDAttributes);
+                        node.AppendChild(newEl);
+                        nextElements.Enqueue(newEl);
                     }
                 }
                 return doc;
