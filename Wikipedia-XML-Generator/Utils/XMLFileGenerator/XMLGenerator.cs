@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
@@ -13,9 +15,14 @@ namespace Wikipedia_XML_Generator.Utils.XMLFileGenerator
     {
         private IDTDFileReader _reader;
 
-        public XMLGenerator(String filepath)
+        public XMLGenerator(Stream file)
         {
-            this._reader = new DTDFileReader(filepath);
+            this._reader = new DTDFileReader(file);
+        }
+
+        public XMLGenerator(IFormFile file)
+        {
+            this._reader = new DTDFileReader(file);
         }
 
         private void AddAttributesToNode(ref XmlElement el, Dictionary<String, List<Attribute>> DTDAttributes)

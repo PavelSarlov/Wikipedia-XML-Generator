@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Wikipedia_XML_Generator.Models.DTD_Elements;
 using Wikipedia_XML_Generator.Models.Enums;
@@ -13,9 +15,20 @@ namespace Wikipedia_XML_Generator.Utils.DTDReader
         private List<String> elementsLines;
         private List<String> attibutesLines;
 
-        public DTDFileReader(String filepath)
+        public DTDFileReader(Stream file)
         {
-            this.Status = FileManager.Read(filepath, out this.DTDtext);
+            this.Status = FileManager.Read(file, out this.DTDtext);
+            this.FieldSetter();
+        }
+
+        public DTDFileReader(IFormFile file)
+        {
+            this.Status = FileManager.Read(file, out this.DTDtext);
+            this.FieldSetter();
+        }
+
+        private void FieldSetter()
+        {
             List<String> lines = this.DTDtext.Split("\r\n").ToList();
             this.elementsLines = new List<String>();
             this.attibutesLines = new List<String>();
