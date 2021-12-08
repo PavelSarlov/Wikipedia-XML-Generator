@@ -1,6 +1,6 @@
 ﻿@using Wikipedia_XML_Generator.Models;
 
-@using (Html.BeginForm("Index_Post", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+@using (Html.BeginForm("Generate", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
 
     <div class="inputs-container">
@@ -15,11 +15,12 @@
                 </div>
                 <label>
                     Enter a valid DTD on the left or<br />
-                    <span id="spanLoad" class="input-hover input-span">load from file<input id="inputDtdFile" name="FileDTD" type="file" accept="txt/*" oninput="$('form').submit()" hidden /></span><br>
+                    <span id="spanLoad" class="input-hover input-span">load from file<input id="inputDtdFile" name="FileDTD" type="file" hidden /></span><br>
                     and click below to generate XML document
                 </label>
                 <button id="btnGenerate" type="submit" name="btnGenerate" class="btn btn-danger input-hover">GENERATE</button>
-                <button id="btnSave" class="btn btn-primary input-hover input-span"><i class="fa fa-download"></i> SAVE</button>
+                <button type="button" id="btnSave" class="btn btn-primary input-hover input-span"><i class="fa fa-download"></i> SAVE</button>
+                <button type="button" id="btnBeautify" class="btn btn-success input-hover input-span">Beautify</button>
             </div>
             <div class="doc-input-container">
                 <textarea id="inputXml" class="doc-input" name="XML" type="text">@Model.XML</textarea>
@@ -32,4 +33,5 @@
 @section Scripts {
     <script language="javascript" type="text/javascript" src="~/lib/codemirror/codemirror.js"></script>
     <script language="javascript" type="text/javascript" src="~/lib/codemirror/mode/perl/perl.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.0/beautify-html.js"></script>
 }

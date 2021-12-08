@@ -27,26 +27,30 @@ namespace Wikipedia_XML_Generator.Controllers
         }
 
         [HttpPost]
-        public IActionResult Index_Post(XmlDtdViewModel model)
+        public IActionResult Generate(XmlDtdViewModel model)
         {
             if (Request.Form.ContainsKey("btnGenerate"))
             {
-                model.XML = "this is a test";
-            }
-            if (Request.Form.Files.Count > 0)
-            {
-                FileManager.Read(Request.Form.Files.First(), out string dtd);
-                model.DTD = dtd;
+                var doc = WikiScrapper.GetXml(model.WikiPage).Result;
+                model.XML = TypesConverter.XmlToString(doc).Result;
             }
 
-            return RedirectToAction("Index", model);
+            return View("Index", model);
         }
 
-        public IActionResult Download(XmlDtdViewModel model)
+        public async Task<IActionResult> Download(XmlDtdViewModel model)
         {
-            var fs = StringConverter.StringToUTF8(model.XML);
-            string contentType = "application/xml";
-            return new FileContentResult(fs, contentType);
+            try
+            {
+                var fs = await TypesConverter.StringToUTF8(model.XML);
+                string contentType = "application/xml";
+                return new FileContentResult(fs, contentType);
+            }
+            catch(Exception e)
+            {
+                await Logger.LogAsync(Console.Out, e.Message);
+                return BadRequest();
+            }
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

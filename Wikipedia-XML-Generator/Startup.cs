@@ -53,8 +53,8 @@ namespace Wikipedia_XML_Generator
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapControllerRoute(
-                    name: "validator",
-                    pattern: "{controller=Validator}/{action=Validate}");
+                    name: "Validator",
+                    pattern: "{controller=Validator}/{action=Validator}/{id?}");
             });
         }
     }

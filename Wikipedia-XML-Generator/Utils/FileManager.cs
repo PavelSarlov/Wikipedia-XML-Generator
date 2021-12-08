@@ -11,13 +11,13 @@ namespace Wikipedia_XML_Generator.Utils
         {
             try
             {
-                byte[] buf = StringConverter.StringToUTF8(value);
+                byte[] buf = TypesConverter.StringToUTF8(value).Result;
                 File.WriteAllBytes(filepath, buf);
                 return buf.Length;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                Logger.Log(Console.Out, e.Message);
+                Logger.LogAsync(Console.Out, e.Message);
                 return -1;
             }
         }
@@ -27,11 +27,11 @@ namespace Wikipedia_XML_Generator.Utils
             try
             {
                 value = File.ReadAllText(filepath);
-                return StringConverter.StringToUTF8(value).Length;
+                return TypesConverter.StringToUTF8(value).Result.Length;
             }
             catch (Exception e)
             {
-                Logger.Log(Console.Out, e.Message);
+                Logger.LogAsync(Console.Out, e.Message);
                 value = string.Empty;
                 return -1;
             }
@@ -45,11 +45,11 @@ namespace Wikipedia_XML_Generator.Utils
                 {
                     value = reader.ReadToEnd();
                 }
-                return StringConverter.StringToUTF8(value).Length;
+                return TypesConverter.StringToUTF8(value).Result.Length;
             }
             catch (Exception e)
             {
-                Logger.Log(Console.Out, e.Message);
+                Logger.LogAsync(Console.Out, e.Message);
                 value = string.Empty;
                 return -1;
             }
@@ -59,13 +59,13 @@ namespace Wikipedia_XML_Generator.Utils
         {
             try
             {
-                byte[] buf = StringConverter.StringToUTF8(value);
+                byte[] buf = await TypesConverter.StringToUTF8(value);
                 await File.WriteAllBytesAsync(filepath, buf);
                 return buf.Length;
             }
             catch (Exception e)
             {
-                Logger.Log(Console.Out, e.Message);
+                Logger.LogAsync(Console.Out, e.Message);
                 return -1;
             }
         }
@@ -79,7 +79,25 @@ namespace Wikipedia_XML_Generator.Utils
             }
             catch (Exception e)
             {
-                Logger.Log(Console.Out, e.Message);
+                Logger.LogAsync(Console.Out, e.Message);
+                return string.Empty;
+            }
+        }
+
+        public async static Task<string> ReadAsync(IFormFile file)
+        {
+            try
+            {
+                string value = String.Empty;
+                using (var reader = new StreamReader(file.OpenReadStream()))
+                {
+                    value = await reader.ReadToEndAsync();
+                }
+                return value;
+            }
+            catch (Exception e)
+            {
+                Logger.LogAsync(Console.Out, e.Message);
                 return string.Empty;
             }
         }
