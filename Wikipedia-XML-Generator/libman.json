@@ -1,0 +1,17 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "codemirror@5.64.0",
+      "destination": "wwwroot/lib/codemirror/",
+      "files": [
+        "codemirror.js",
+        "codemirror.css",
+        "theme/abbott.css",
+        "mode/perl/perl.js",
+        "mode/perl/perl.min.js"
+      ]
+    }
+  ]
+}

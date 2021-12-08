@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Wikipedia_XML_Generator.Models.DTD_Elements;
@@ -14,7 +15,7 @@ namespace Wikipedia_XML_Generator.Utils.DTDReader
         private List<String> elementsLines;
         private List<String> attibutesLines;
 
-        public DTDReader(String filepath)
+        public DTDReader(Stream filepath)
         {
             this.Status = FileManager.Read(filepath, out this.DTDtext);
             List<String> lines = this.DTDtext.Split("\r\n").ToList();
