@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Wikipedia_XML_Generator.Models.DTD_Elements;
 using Wikipedia_XML_Generator.Models.Enums;
 using Attribute = Wikipedia_XML_Generator.Models.DTD_Elements.Attribute;
@@ -32,7 +33,7 @@ namespace Wikipedia_XML_Generator.Utils.DTDReader
             List<string> lines = this.DTDtext.Split("\r\n").ToList();
             this.elementsLines = new List<string>();
             this.attibutesLines = new List<string>();
-            this.Root = lines[0].Split("(")[0].Split(" ").Last().ToUpper();
+            this.Root = lines[0].Split("[")[0].Trim().Split(" ").Last().ToUpper();
             foreach (var l in lines)
             {
                 string line = l.Remove(0, l.LastIndexOf("\t") + 1);
@@ -100,18 +101,27 @@ namespace Wikipedia_XML_Generator.Utils.DTDReader
                 string name;
                 Dictionary<string, char> childrenQuantifies = new Dictionary<string, char>();
                 string line = item.Trim('>');
-                List<string> parts = line.Split("(").ToList();
-                name = parts[0].Split(" ")[1];
-                foreach (var element in parts[1].Replace(" ", "").Replace(")", "").Split(","))
+                List<string> parts = line.Split(' ', 3).ToList();
+                name = parts[1].ToUpper();
+
+                if (!(parts[2].Contains("ANY") || parts[2].Contains("EMPTY")))
                 {
-                    char quantify = ' ';
-                    if (element.Last() == '*' || element.Last() == '+' || element.Last() == '?')
+                    foreach (var element in Regex.Replace(parts[2], "[ \\(\\)]", "").ToUpper().Split(","))
                     {
-                        quantify = element.Last();
-                        element.Remove(element.Length - 1, 1);
+                        char quantify = ' ';
+                        if (element.Last() == '*' || element.Last() == '+' || element.Last() == '?')
+                        {
+                            quantify = element.Last();
+                            element.Remove(element.Length - 1, 1);
+                        }
+                        childrenQuantifies[element] = quantify;
                     }
-                    childrenQuantifies[element] = quantify;
                 }
+                else
+                {
+                    childrenQuantifies[parts[2]] = ' ';
+                }
+                
                 elements[name] = new Element(name, childrenQuantifies);
             }
             return elements;

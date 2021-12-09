@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
 using Wikipedia_XML_Generator.Models.DTD_Elements;
@@ -64,7 +65,7 @@ namespace Wikipedia_XML_Generator.Utils.XMLFileGenerator
 
                     foreach (var e in DTDElements[node.Name].ChildrenOccurrences)
                     {
-                        if (e.Key == "#PCDATA")
+                        if (Regex.IsMatch(e.Key, "(#PCDATA|ANY|EMPTY)"))
                         {
                             continue;
                         }
@@ -125,14 +126,24 @@ namespace Wikipedia_XML_Generator.Utils.XMLFileGenerator
                                 currentElement[0].Attributes.SetNamedItem(attr);
                             }
                         }
+                        if (DTDElements[currentElement[0].Name].ChildrenOccurrences.ContainsKey("EMPTY") && currentElement[0].NodeType != XmlNodeType.None)
+                        {
+                            currentElement[0].RemoveAll();
+                            return false;
+                        }
                         foreach (XmlNode n in children)
                         {
-                            if (n.NodeType == XmlNodeType.Text)
+                            if(DTDElements.ContainsKey(n.Name) && DTDElements[currentElement[0].Name].ChildrenOccurrences.ContainsKey("ANY"))
+                            {
+                                e.Value.AddChild("ANY");
+                                continue;
+                            }
+                            else if (n.NodeType == XmlNodeType.Text)
                             {
                                 e.Value.AddChild("#PCDATA");
                                 continue;
                             }
-                            if (e.Value.HasAChild(n.Name))
+                            else if (e.Value.HasAChild(n.Name))
                             {
                                 e.Value.AddChild(n.Name);
                             }
