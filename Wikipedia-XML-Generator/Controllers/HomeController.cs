@@ -10,6 +10,7 @@ using Wikipedia_XML_Generator.Utils.XMLFileGenerator;
 using System.Xml;
 using Wikipedia_XML_Generator.Utils.XMLFileGenerator;
 using System.Web;
+using Wikipedia_XML_Generator.Models.Enums;
 
 namespace Wikipedia_XML_Generator.Controllers
 {
@@ -22,24 +23,25 @@ namespace Wikipedia_XML_Generator.Controllers
             _logger = logger;
         }
 
-        [HttpPost]
         [HttpGet]
-        public async Task<IActionResult> Index(XmlDtdViewModel model)
+        public async Task<IActionResult> IndexAsync()
+        {
+            return View();
+        }
+
+        [HttpPost]
         public async Task<IActionResult> IndexAsync(XmlDtdViewModel model)
         {
             try
             {
-                if (Request.Method == "POST")
+                if (Request.Form.Files.Count > 0)
                 {
-                    if (Request.Form.Files.Count > 0)
-                    {
-                        return await UploadDTD(model);
-                    }
+                    return await UploadDTDAsync(model);
+                }
 
-                    if (Request.Form.TryGetValue("btnSubmit", out var value))
-                    {
-                        return await (this.GetType().GetMethod(value).Invoke(this, new object[] { model }) as Task<IActionResult>);
-                    }
+                if (Request.Form.TryGetValue("btnSubmit", out var value))
+                {
+                    return await (this.GetType().GetMethod(value).Invoke(this, new object[] { model }) as Task<IActionResult>);
                 }
             }
             catch (Exception e)
@@ -51,7 +53,7 @@ namespace Wikipedia_XML_Generator.Controllers
         }
 
         [NonAction]
-        public async Task<IActionResult> UploadDTD(XmlDtdViewModel model)
+        public async Task<IActionResult> UploadDTDAsync(XmlDtdViewModel model)
         {
             try
             {
@@ -68,38 +70,40 @@ namespace Wikipedia_XML_Generator.Controllers
         [NonAction]
         public async Task<IActionResult> GenerateAsync(XmlDtdViewModel model)
         {
-            try
+            if (ModelState.IsValid)
             {
-                XmlDocument doc = new XmlDocument();
-                if (model.FileDTD != null)
+                try
                 {
-                    IXMLGenerator _generator = new XMLGenerator(model.FileDTD);
-                    doc = await _generator.GetXMLFromWikiTextAsync(model.WikiPage);
-                }
-                else if (model.DTD != null)
-                {
+                    if (model.DTD == null)
+                    {
+                        model.StatusCode = RequestStatus.ERR_INVALID_DTD;
+                        throw new InvalidDataException();
+                    }
+
+                    XmlDocument doc = new XmlDocument();
+
                     Stream file = await TypesConverter.StringToSteam(model.DTD);
                     IXMLGenerator _generator = new XMLGenerator(file);
                     doc = await _generator.GetXMLFromWikiTextAsync(model.WikiPage);
+                    model.XML = FileManager.ReadAsync(TypesConverter.XmlToStream(doc).Result).Result;
                 }
-                model.XML = FileManager.ReadAsync(TypesConverter.XmlToStream(doc).Result).Result;
-            }
-            catch (Exception e)
-            {
-                Logger.LogAsync(Console.Out, e.Message);
+                catch (Exception e)
+                {
+                    Logger.LogAsync(Console.Out, e.Message);
+                }
             }
 
             return View("Index", model);
         }
 
         [NonAction]
-        public async Task<IActionResult> Download(XmlDtdViewModel model)
+        public async Task<IActionResult> DownloadAsync(XmlDtdViewModel model)
         {
             try
             {
                 var content = await TypesConverter.StringToUTF8(model.XML);
                 string contentType = "text/xml";
-                return new FileContentResult(content, contentType) { FileDownloadName = "wiki.xml" };
+                return new FileContentResult(content != null ? content : new byte[0], contentType) { FileDownloadName = "wiki.xml" };
             }
             catch (Exception e)
             {
