@@ -1,4 +1,20 @@
 ﻿@model XmlDtdViewModel
+@using Wikipedia_XML_Generator.Models;
+@using Wikipedia_XML_Generator.Models.Enums;
+
+@switch (Model.StatusCode)
+{
+    case RequestStatus.ERR_INVALID_DTD:
+        {
+            <script>alert("The entered DTD content is empty or invalid.");</script>
+            break;
+        }
+    case RequestStatus.ERR_WIKI_URL:
+        {
+            <script>alert("The entered Wikipedia url is empty or invalid.");</script>
+            break;
+        }
+}
 
 @using (Html.BeginForm("Index", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
@@ -19,7 +35,7 @@
                     and click below to generate XML document
                 </label>
                 <button id="btnGenerate" type="submit" name="btnSubmit" value="Generate" class="btn btn-danger input-hover">GENERATE</button>
-                <button id="btnSave"  type="submit" name="btnSubmit" value="Download" class="btn btn-primary input-hover input-span"><i class="fa fa-download"></i> DOWNLOAD</button>
+                <button id="btnSave" type="submit" name="btnSubmit" value="Download" class="btn btn-primary input-hover input-span"><i class="fa fa-download"></i> DOWNLOAD</button>
                 <button id="btnBeautify" type="button" class="btn btn-success input-hover input-span">Beautify</button>
             </div>
             <div class="doc-input-container">

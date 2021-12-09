@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Threading.Tasks;
 using Wikipedia_XML_Generator.Models;
 using Wikipedia_XML_Generator.Utils;
 using Wikipedia_XML_Generator.Utils.XmlDTDValidator;
@@ -12,7 +13,7 @@ namespace Wikipedia_XML_Generator.Controllers
         { }
 
         [HttpPost]
-        public IActionResult Validate([FromBody] XmlDtdViewModel model)
+        public async Task<IActionResult> Validate([FromBody] XmlDtdViewModel model)
         {
             try
             {
