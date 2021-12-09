@@ -131,3 +131,8 @@ input[hidden] {
     z-index: -1;
     position: absolute;
 }
+
+.text-danger {
+    background: yellow;
+    position: relative;
+}

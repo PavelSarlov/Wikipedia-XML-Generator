@@ -7,16 +7,16 @@ using System.Xml.Schema;
 
 namespace Wikipedia_XML_Generator.Utils.XmlDTDValidator
 {
-    public class XmlDTDValidator : IValidator
+    public class XMLValidator : IValidator
     {
         private string dtd = null;
 
-        public XmlDTDValidator(string dtd)
+        public XMLValidator(string dtd)
         {
             this.dtd = dtd;
         }
 
-        public XmlDTDValidator(Stream dtd)
+        public XMLValidator(Stream dtd)
         {
             if (dtd is not null && dtd.CanRead)
             {

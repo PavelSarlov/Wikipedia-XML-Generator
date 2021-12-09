@@ -1,24 +1,4 @@
 ﻿@model XmlDtdViewModel
-@using Wikipedia_XML_Generator.Models;
-@using Wikipedia_XML_Generator.Models.Enums;
-
-@if (Model != null)
-{
-    @switch (Model.StatusCode)
-    {
-        case RequestStatus.ERR_INVALID_DTD:
-            {
-                <script>alert("The entered DTD content is empty or invalid.");</script>
-                break;
-            }
-        case RequestStatus.ERR_WIKI_URL:
-            {
-                <script>alert("The entered Wikipedia url is empty or invalid.");</script>
-                break;
-            }
-    }
-}
-
 
 @using (Html.BeginForm("Index", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
@@ -26,10 +6,10 @@
     <div class="inputs-container">
         <div class="docs-container">
             <div class="doc-input-container">
-                <textarea id="inputDtd" class="doc-input" name="DTD" type="text">@if (Model != null) { @Model.DTD }</textarea>
+                <span asp-validation-for="@Model.DTD" class="text-danger"></span>
+                <textarea asp-for="@Model.DTD" id="input-dtd" class="doc-input" type="text"></textarea>
             </div>
             <div class="container">
-
                 <div class="wiki-input-container">
                     <label for="inputWiki">Enter a link to a wikipedia article:</label>
                     <input id="inputWiki" class="form-control" type="text" placeholder="https://en.wikipedia.org/wiki/..." asp-for="@Model.WikiPage" />
@@ -45,15 +25,10 @@
                 <button id="btnBeautify" type="button" class="btn btn-success input-hover input-span">Beautify</button>
             </div>
             <div class="doc-input-container">
-                <textarea id="inputXml" class="doc-input" name="XML" type="text">@if (Model != null) { @Model.XML }</textarea>
+                <span asp-validation-for="@Model.XML" class="text-danger"></span>
+                <textarea asp-for="@Model.XML" id="input-xml" class="doc-input" type="text"></textarea>
             </div>
         </div>
     </div>
 
-}
-
-@section Scripts {
-    <script language="javascript" type="text/javascript" src="~/lib/codemirror/codemirror.js"></script>
-    <script language="javascript" type="text/javascript" src="~/lib/codemirror/mode/perl/perl.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.0/beautify-html.js"></script>
 }

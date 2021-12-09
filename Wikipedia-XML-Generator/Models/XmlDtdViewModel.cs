@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Wikipedia_XML_Generator.Models.Enums;
+using Wikipedia_XML_Generator.Utils.XmlDTDValidator;
 
 namespace Wikipedia_XML_Generator.Models
 {
@@ -16,7 +18,5 @@ namespace Wikipedia_XML_Generator.Models
         public string WikiPage { get; set; } = null;
 
         public IFormFile FileDTD { get; set; } = null;
-
-        public RequestStatus StatusCode { get; set; } = RequestStatus.OK;
     }
 }

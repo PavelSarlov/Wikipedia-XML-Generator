@@ -13,17 +13,32 @@ namespace Wikipedia_XML_Generator.Controllers
         { }
 
         [HttpPost]
-        public async Task<IActionResult> Validate([FromBody] XmlDtdViewModel model)
+        public async Task<JsonResult> ValidateXMLAsync([FromBody] XmlDtdViewModel model)
         {
             try
             {
-                var validator = new XmlDTDValidator(model.DTD);
-                return Ok(validator.Validate(model.XML));
+                var validator = new XMLValidator(model.DTD);
+                return Json(validator.Validate(model.XML));
             }
             catch (Exception e)
             {
                 Logger.LogAsync(Console.Out, e.Message);
-                return BadRequest();
+                return Json(false);
+            }
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> ValidateDTDAsync([FromBody] XmlDtdViewModel model)
+        {
+            try
+            {
+                var validator = new DTDValidator();
+                return Json(validator.Validate(model.DTD));
+            }
+            catch (Exception e)
+            {
+                Logger.LogAsync(Console.Out, e.Message);
+                return Json(false);
             }
         }
     }

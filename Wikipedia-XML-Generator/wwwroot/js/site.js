@@ -12,38 +12,38 @@
 
     async function getModel() {
         return {
-            "DTD": editors["inputDtd"].getValue(),
-            "XML": editors["inputXml"].getValue(),
-            "WikiPage": $('#inputWiki').val()
+            "DTD": editors["input-dtd"].getValue(),
+            "XML": editors["input-xml"].getValue(),
         };
     }
 
     async function editorOnChangeHandler(cm, change) {
         var data = await getModel();
 
+        var editorName = cm.options["name"];
+
         var onload = () => {
             var xhr = event.target;
             if (xhr.responseText != "true" && cm.getValue() != '') {
-                $('#inputXml').nextAll('.CodeMirror').css('border', '2px solid red');
+                $('#input-' + editorName).nextAll('.CodeMirror').css('border', '2px solid red');
             }
             else {
-                $('#inputXml').nextAll('.CodeMirror').css('border', '');
+                $('#input-' + editorName).nextAll('.CodeMirror').css('border', '');
             }
         }
 
-        await sendRequest('POST', '/validator/validate', data, onload);
+        await sendRequest('POST', '/validator/validate' + editorName, data, onload);
     }
 
     $('.doc-input').each((i, v) => {
         var editor = CodeMirror.fromTextArea(v, {
+            name: ["dtd", "xml"][i],
             lineNumbers: true,
-            mode: 'text/x-perl',
+            mode: ["dtd", "xml"][i],
             theme: 'abbott',
         });
 
-        if (v.id == "inputXml") {
-            editor.on("change", editorOnChangeHandler);
-        }
+        editor.on("change", editorOnChangeHandler);
         editors[v.id] = editor;
     });
 
@@ -71,5 +71,5 @@
         editors["inputXml"].getDoc().setValue(edited);
     });
 
-    editorOnChangeHandler(editors["inputXml"]);
+//    editorOnChangeHandler(editors["inputXml"]);
 });

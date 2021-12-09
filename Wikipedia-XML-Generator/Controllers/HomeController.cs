@@ -74,12 +74,6 @@ namespace Wikipedia_XML_Generator.Controllers
             {
                 try
                 {
-                    if (model.DTD == null)
-                    {
-                        model.StatusCode = RequestStatus.ERR_INVALID_DTD;
-                        throw new InvalidDataException();
-                    }
-
                     XmlDocument doc = new XmlDocument();
 
                     Stream file = await TypesConverter.StringToSteam(model.DTD);
