@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Web;
 
 namespace Wikipedia_XML_Generator.Utils
 {
@@ -30,12 +31,14 @@ namespace Wikipedia_XML_Generator.Utils
                 var json = JObject.Parse(response);
                 var sections = new Dictionary<string, Tuple<int, List<string>>>();
 
-                var currentTitle = json.SelectToken("$.query.pages.*.title").ToString().ToUpper();
+                var currentTitle = await FormatElementName(json.SelectToken("$.query.pages.*.title").ToString());
                 sections.Add(currentTitle, new Tuple<int, List<string>>(1, new List<string>()));
 
-                Regex rg = new Regex("(==+)([\\w ]+)(==+)");
+                Regex rg = new Regex("(==+)([^=]+)(==+)");
 
-                foreach (var line in json.SelectToken("$.query.pages.*.extract").ToString().Split('\n'))
+                var lines = json.SelectToken("$.query.pages.*.extract").ToString().Split('\n');
+
+                foreach (var line in lines)
                 {
                     if (line == string.Empty) continue;
 
@@ -43,7 +46,7 @@ namespace Wikipedia_XML_Generator.Utils
 
                     if (match.Success)
                     {
-                        currentTitle = match.Groups[2].Value.Trim().Replace(' ', '_').ToUpper();
+                        currentTitle = await FormatElementName(match.Groups[2].Value);
                         sections.Add(currentTitle, new Tuple<int, List<string>>(match.Groups[1].Length, new List<string>()));
                     }
                     else
@@ -97,6 +100,11 @@ namespace Wikipedia_XML_Generator.Utils
                 Logger.LogAsync(Console.Out, e.Message);
                 return null;
             }
+        }
+
+        public async static Task<string> FormatElementName(string name)
+        {
+            return Regex.Replace(name, "[^\\w \\.]", string.Empty).Trim().Replace(' ', '_').ToUpper();
         }
     }
 }

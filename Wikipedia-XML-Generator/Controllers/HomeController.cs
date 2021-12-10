@@ -1,17 +1,16 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Collections.Generic;
-using System.Collections.Generic;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
+using System.IO;
 using System.Threading.Tasks;
 using Wikipedia_XML_Generator.Models;
 using Wikipedia_XML_Generator.Utils;
+using Wikipedia_XML_Generator.Utils.XMLFileGenerator;
+using System.Xml;
+using Wikipedia_XML_Generator.Utils.XMLFileGenerator;
+using System.Web;
+using Wikipedia_XML_Generator.Models.Enums;
 
 namespace Wikipedia_XML_Generator.Controllers
 {
@@ -24,23 +23,25 @@ namespace Wikipedia_XML_Generator.Controllers
             _logger = logger;
         }
 
-        [HttpPost]
         [HttpGet]
-        public IActionResult Index(XmlDtdViewModel model)
+        public async Task<IActionResult> IndexAsync()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> IndexAsync(XmlDtdViewModel model)
         {
             try
             {
-                if (Request.Method == "POST")
+                if (Request.Form.Files.Count > 0)
                 {
-                    if (Request.Form.Files.Count > 0)
-                    {
-                        return UploadDTD(model);
-                    }
+                    return await UploadDTDAsync(model);
+                }
 
-                    if (Request.Form.TryGetValue("btnSubmit", out var value))
-                    {
-                        return this.GetType().GetMethod(value).Invoke(this, new object[] { model }) as IActionResult;
-                    }
+                if (Request.Form.TryGetValue("btnSubmit", out var value))
+                {
+                    return await (this.GetType().GetMethod(value).Invoke(this, new object[] { model }) as Task<IActionResult>);
                 }
             }
             catch (Exception e)
@@ -51,12 +52,12 @@ namespace Wikipedia_XML_Generator.Controllers
             return View(model);
         }
 
-        public IActionResult UploadDTD(XmlDtdViewModel model)
+        [NonAction]
+        public async Task<IActionResult> UploadDTDAsync(XmlDtdViewModel model)
         {
             try
             {
-                FileManager.Read(model.FileDTD, out string dtd);
-                model.DTD = dtd;
+                model.DTD = await FileManager.ReadAsync(model.FileDTD); ;
             }
             catch (Exception e)
             {
@@ -67,29 +68,36 @@ namespace Wikipedia_XML_Generator.Controllers
         }
 
         [NonAction]
-        public IActionResult Generate(XmlDtdViewModel model)
+        public async Task<IActionResult> GenerateAsync(XmlDtdViewModel model)
         {
-            try
+            if (ModelState.IsValid)
             {
-                var doc = WikiScrapper.GetXml(model.WikiPage).Result;
-                model.XML = FileManager.ReadAsync(TypesConverter.XmlToStream(doc).Result).Result;
-            }
-            catch (Exception e)
-            {
-                Logger.LogAsync(Console.Out, e.Message);
+                try
+                {
+                    XmlDocument doc = new XmlDocument();
+
+                    Stream file = await TypesConverter.StringToSteam(model.DTD);
+                    IXMLGenerator _generator = new XMLGenerator(file);
+                    doc = await _generator.GetXMLFromWikiTextAsync(model.WikiPage);
+                    model.XML = FileManager.ReadAsync(TypesConverter.XmlToStream(doc).Result).Result;
+                }
+                catch (Exception e)
+                {
+                    Logger.LogAsync(Console.Out, e.Message);
+                }
             }
 
             return View("Index", model);
         }
 
         [NonAction]
-        public IActionResult Download(XmlDtdViewModel model)
+        public async Task<IActionResult> DownloadAsync(XmlDtdViewModel model)
         {
             try
             {
-                var content = TypesConverter.StringToUTF8(model.XML).Result;
+                var content = await TypesConverter.StringToUTF8(model.XML);
                 string contentType = "text/xml";
-                return new FileContentResult(content, contentType) { FileDownloadName = "wiki.xml" };
+                return new FileContentResult(content != null ? content : new byte[0], contentType) { FileDownloadName = "wiki.xml" };
             }
             catch (Exception e)
             {

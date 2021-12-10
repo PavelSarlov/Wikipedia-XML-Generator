@@ -61,5 +61,20 @@ namespace Wikipedia_XML_Generator.Utils
                 return null;
             }
         }
+
+        public async static Task<Stream> StringToSteam(String text)
+        {
+            try
+            {
+                byte[] byteArray = Encoding.UTF8.GetBytes(text);
+                MemoryStream stream = new MemoryStream(byteArray);
+                return stream;
+            }
+            catch (Exception e)
+            {
+                Logger.LogAsync(Console.Out, e.Message);
+                return null;
+            }
+        }
     }
 }

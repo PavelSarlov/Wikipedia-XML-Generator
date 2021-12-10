@@ -3,25 +3,26 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Wikipedia_XML_Generator.Models.DTD_Elements;
 using Wikipedia_XML_Generator.Models.Enums;
 using Attribute = Wikipedia_XML_Generator.Models.DTD_Elements.Attribute;
 
 namespace Wikipedia_XML_Generator.Utils.DTDReader
 {
-    public class DTDFileReader : IDTDFileReader
+    public class XMLFileGenerator : IDTDFileReader
     {
-        private String DTDtext;
-        private List<String> elementsLines;
-        private List<String> attibutesLines;
+        private string DTDtext;
+        private List<string> elementsLines;
+        private List<string> attibutesLines;
 
-        public DTDFileReader(Stream file)
+        public XMLFileGenerator(Stream file)
         {
             this.Status = FileManager.Read(file, out this.DTDtext);
             this.FieldSetter();
         }
 
-        public DTDFileReader(IFormFile file)
+        public XMLFileGenerator(IFormFile file)
         {
             this.Status = FileManager.Read(file, out this.DTDtext);
             this.FieldSetter();
@@ -29,13 +30,13 @@ namespace Wikipedia_XML_Generator.Utils.DTDReader
 
         private void FieldSetter()
         {
-            List<String> lines = this.DTDtext.Split("\r\n").ToList();
-            this.elementsLines = new List<String>();
-            this.attibutesLines = new List<String>();
-            this.Root = lines[0].Split("[")[0].Split(" ").Last().ToUpper();
+            List<string> lines = this.DTDtext.Split("\r\n").ToList();
+            this.elementsLines = new List<string>();
+            this.attibutesLines = new List<string>();
+            this.Root = lines[0].Split("[")[0].Trim().Split(" ").Last().ToUpper();
             foreach (var l in lines)
             {
-                String line = l.Remove(0, l.LastIndexOf("\t") + 1);
+                string line = l.Remove(0, l.LastIndexOf("\t") + 1);
                 if (line.StartsWith("<!ELEMENT"))
                 {
                     this.elementsLines.Add(line);
@@ -47,24 +48,24 @@ namespace Wikipedia_XML_Generator.Utils.DTDReader
             }
         }
 
-        private List<String> GetWordsInAttributeLine(String line)
+        private List<string> GetWordsInAttributeLine(string line)
         {
-            List<String> parts = line.Remove(0, 1).Remove(line.Length - 1, 1).Split("\"").ToList();
-            List<String> words = new List<String>();
+            List<string> parts = line.Trim('>').Split('"', 2).ToList();
+            List<string> words = new List<string>();
             switch (parts.Count())
             {
                 case 1:
-                    words = parts[0].Split(" ").ToList();
+                    words = parts[0].Split(" ").Where(x => x != string.Empty).ToList();
                     break;
                 case 2:
-                    words = parts[0].Split(" ").ToList();
-                    words.Add(parts[1]);
+                    words = parts[0].Split(" ").Where(x => x != string.Empty).ToList();
+                    words.Add(parts[1].Trim('"'));
                     break;
             }
             return words;
         }
 
-        private void SetAttributeType(String word, out AttributeTypes type)
+        private void SetAttributeType(string word, out AttributeTypes type)
         {
             type = word switch
             {
@@ -81,7 +82,7 @@ namespace Wikipedia_XML_Generator.Utils.DTDReader
             };
         }
 
-        private void SetAttributeValuesType(String word, out AttributeValuesType valuesType)
+        private void SetAttributeValuesType(string word, out AttributeValuesType valuesType)
         {
             valuesType = word.Remove(0, 1) switch
             {
@@ -92,50 +93,58 @@ namespace Wikipedia_XML_Generator.Utils.DTDReader
             };
         }
 
-        public Dictionary<String, Element> GetElements()
+        public Dictionary<string, Element> GetElements()
         {
-            Dictionary<String, Element> elements = new Dictionary<String, Element>();
+            Dictionary<string, Element> elements = new Dictionary<string, Element>();
             foreach (var item in this.elementsLines)
             {
-                String name;
-                Dictionary<String, char> childrenQuantifies = new Dictionary<string, char>();
-                String line = item.Remove(0, 1);
-                line.Remove(line.Length - 1, 1);
-                List<String> parts = line.Split("(").ToList();
-                name = parts[0].Split(" ")[1];
-                foreach (var element in parts[1].Remove(parts[1].Length - 1, 1).Replace(" ", "").Replace(")", "").Split(","))
+                string name;
+                Dictionary<string, char> childrenQuantifies = new Dictionary<string, char>();
+                string line = item.Trim('>');
+                List<string> parts = line.Split(' ', 3).ToList();
+                name = parts[1].ToUpper();
+
+                if (!(parts[2].Contains("ANY") || parts[2].Contains("EMPTY")))
                 {
-                    char quantify = ' ';
-                    if (element[element.Length - 1] == '*' || element[element.Length - 1] == '+' || element[element.Length - 1] == '?')
+                    foreach (var element in Regex.Replace(parts[2], @"[ \(\)]", "").ToUpper().Split(","))
                     {
-                        quantify = element[element.Length - 1];
-                        element.Remove(element.Length - 1, 1);
+                        char quantify = ' ';
+                        if (element.Last() == '*' || element.Last() == '+' || element.Last() == '?')
+                        {
+                            quantify = element.Last();
+                            element.Remove(element.Length - 1, 1);
+                        }
+                        childrenQuantifies[element] = quantify;
                     }
-                    childrenQuantifies[element] = quantify;
                 }
+                else
+                {
+                    childrenQuantifies[parts[2]] = ' ';
+                }
+                
                 elements[name] = new Element(name, childrenQuantifies);
             }
             return elements;
         }
 
-        public Dictionary<String, List<Attribute>> GetAttributes()
+        public Dictionary<string, List<Attribute>> GetAttributes()
         {
-            Dictionary<String, List<Attribute>> attributes = new Dictionary<String, List<Attribute>>();
+            Dictionary<string, List<Attribute>> attributes = new Dictionary<string, List<Attribute>>();
             foreach (var item in attibutesLines)
             {
-                List<String> words = GetWordsInAttributeLine(item);
+                List<string> words = GetWordsInAttributeLine(item);
 
-                String name = words[1], elementName = words[2];
+                string elementName = words[1].ToUpper(), name = words[2].ToUpper();
                 AttributeTypes type;
                 SetAttributeType(words[3], out type);
-                List<String> enumerations = null;
+                List<string> enumerations = null;
                 if (type == AttributeTypes.ENUMERATION)
                 {
-                    enumerations = words[3].Remove(0, 1).Remove(words[3].Length - 1, 1).Split('|').ToList();
+                    enumerations = words[3].Trim('(',')').Split('|').ToList();
                 }
 
                 AttributeValuesType valuesType = AttributeValuesType.REQUIRED;
-                String value = null;
+                string value = null;
                 if (words.Count() > 4)
                 {
                     SetAttributeValuesType(words[4], out valuesType);
@@ -155,6 +164,11 @@ namespace Wikipedia_XML_Generator.Utils.DTDReader
                         }
                     }
                 }
+
+                if(!attributes.ContainsKey(elementName))
+                {
+                    attributes[elementName] = new List<Attribute>();
+                }
                 attributes[elementName].Add(new Attribute(name, elementName, type, valuesType, enumerations, value));
             }
             return attributes;
@@ -165,12 +179,12 @@ namespace Wikipedia_XML_Generator.Utils.DTDReader
             return this.Status;
         }
 
-        public String GetRoot()
+        public string GetRoot()
         {
             return this.Root;
         }
 
         public int Status { get; set; }
-        public String Root { get; set; }
+        public string Root { get; set; }
     }
 }

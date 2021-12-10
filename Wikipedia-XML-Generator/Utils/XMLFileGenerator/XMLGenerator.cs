@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
 using Wikipedia_XML_Generator.Models.DTD_Elements;
@@ -17,12 +18,12 @@ namespace Wikipedia_XML_Generator.Utils.XMLFileGenerator
 
         public XMLGenerator(Stream file)
         {
-            this._reader = new DTDFileReader(file);
+            this._reader = new DTDReader.XMLFileGenerator(file);
         }
 
         public XMLGenerator(IFormFile file)
         {
-            this._reader = new DTDFileReader(file);
+            this._reader = new DTDReader.XMLFileGenerator(file);
         }
 
         private void AddAttributesToNode(ref XmlElement el, Dictionary<String, List<Attribute>> DTDAttributes)
@@ -52,7 +53,7 @@ namespace Wikipedia_XML_Generator.Utils.XMLFileGenerator
             {
                 XmlDocument doc = new XmlDocument();
                 doc.CreateXmlDeclaration("1.0", "UTF-8", null);
-                XmlElement el = doc.CreateElement(string.Empty, this._reader.GetRoot(), string.Empty);
+                XmlElement el = doc.CreateElement(string.Empty, GetRoot(DTDElements), string.Empty);
                 this.AddAttributesToNode(ref el, DTDAttributes);
                 doc.AppendChild(el);
                 Queue<XmlNode> nextElements = new Queue<XmlNode>();
@@ -64,7 +65,7 @@ namespace Wikipedia_XML_Generator.Utils.XMLFileGenerator
 
                     foreach (var e in DTDElements[node.Name].ChildrenOccurrences)
                     {
-                        if (e.Key == "#PCDATA")
+                        if (Regex.IsMatch(e.Key, "(#PCDATA|ANY|EMPTY)"))
                         {
                             continue;
                         }
@@ -90,7 +91,7 @@ namespace Wikipedia_XML_Generator.Utils.XMLFileGenerator
             }
             catch (Exception e)
             {
-                await Logger.LogAsync(Console.Out, e.Message);
+                Logger.LogAsync(Console.Out, e.Message);
                 return null;
             }
         }
@@ -125,13 +126,24 @@ namespace Wikipedia_XML_Generator.Utils.XMLFileGenerator
                                 currentElement[0].Attributes.SetNamedItem(attr);
                             }
                         }
-                        if (currentElement[0].InnerText != null)
+                        if (DTDElements[currentElement[0].Name].ChildrenOccurrences.ContainsKey("EMPTY") && currentElement[0].NodeType != XmlNodeType.None)
                         {
-                            e.Value.AddChild("#PCDATA");
+                            currentElement[0].RemoveAll();
+                            return false;
                         }
                         foreach (XmlNode n in children)
                         {
-                            if (e.Value.HasAChild(n.Name))
+                            if(DTDElements.ContainsKey(n.Name) && DTDElements[currentElement[0].Name].ChildrenOccurrences.ContainsKey("ANY"))
+                            {
+                                e.Value.AddChild("ANY");
+                                continue;
+                            }
+                            else if (n.NodeType == XmlNodeType.Text)
+                            {
+                                e.Value.AddChild("#PCDATA");
+                                continue;
+                            }
+                            else if (e.Value.HasAChild(n.Name))
                             {
                                 e.Value.AddChild(n.Name);
                             }
@@ -151,7 +163,7 @@ namespace Wikipedia_XML_Generator.Utils.XMLFileGenerator
             }
             catch (Exception e)
             {
-                Logger.Log(Console.Out, e.Message);
+                Logger.LogAsync(Console.Out, e.Message);
                 return false;
             }
         }
@@ -171,6 +183,39 @@ namespace Wikipedia_XML_Generator.Utils.XMLFileGenerator
                 return wikiXML;
             }
             return await this.GenerateXMLFileAsync(DTDElements, DTDAttributes);
+        }
+
+        private string GetRoot(Dictionary<string, Element> elements)
+        {
+            var dict = new Dictionary<string, int>();
+
+            foreach (var el in elements)
+            {
+                if(!dict.ContainsKey(el.Key))
+                {
+                    dict[el.Key] = 0;
+                }
+
+                if(el.Value.ChildrenOccurrences != null)
+                {
+                    foreach(var child in el.Value.ChildrenOccurrences)
+                    {
+                        if (!dict.ContainsKey(child.Key)) dict[child.Key] = 1;
+                        else dict[child.Key] += 1;
+                    }
+                }
+
+                foreach (var child in el.Value.ChildrenInGroupOccurrences)
+                {
+                    child.Key.ForEach(x =>
+                    {
+                        if (!dict.ContainsKey(x)) dict[x] = 1;
+                        else dict[x] += 1;
+                    });
+                }
+            }
+
+            return dict.Where(x => x.Value == 0).First().Key;
         }
     }
 }

@@ -81,9 +81,9 @@ namespace Wikipedia_XML_Generator.Models.DTD_Elements
                 {
                     return false;
                 }
-                if (item.Value.Item2 == ' ' && item.Value.Item1 != 1)
+                if (item.Value.Item2 == ' ')
                 {
-                    return false;
+                    if (item.Key == "EMPTY" && item.Value.Item1 != 0) return false;
                 }
             }
             foreach (var item in this.ChildrenInGroupOccurrences)

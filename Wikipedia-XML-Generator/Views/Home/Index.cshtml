@@ -1,4 +1,4 @@
-﻿@using Wikipedia_XML_Generator.Models;
+﻿@model XmlDtdViewModel
 
 @using (Html.BeginForm("Index", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
@@ -6,32 +6,29 @@
     <div class="inputs-container">
         <div class="docs-container">
             <div class="doc-input-container">
-                <textarea id="inputDtd" class="doc-input" name="DTD" type="text">@Model.DTD</textarea>
+                <span asp-validation-for="@Model.DTD" class="text-danger"></span>
+                <textarea asp-for="@Model.DTD" id="input-dtd" class="doc-input" type="text"></textarea>
             </div>
             <div class="container">
                 <div class="wiki-input-container">
                     <label for="inputWiki">Enter a link to a wikipedia article:</label>
-                    <input id="inputWiki" class="form-control" name="WikiPage" type="text" placeholder="https://en.wikipedia.org/wiki/..." value="@Model.WikiPage" />
+                    <input id="inputWiki" class="form-control" type="text" placeholder="https://en.wikipedia.org/wiki/..." asp-for="@Model.WikiPage" />
+                    <span asp-validation-for="@Model.WikiPage" class="text-danger"></span>
                 </div>
                 <label>
                     Enter a valid DTD on the left or<br />
-                    <span id="spanLoad" class="input-hover input-span">load from file<input id="inputDtdFile" name="FileDTD" type="file" oninput="submit()" hidden /></span><br>
+                    <span id="spanLoad" class="input-hover input-span">load from file<input id="inputDtdFile" type="file" asp-for="@Model.FileDTD" oninput="submit()" hidden /></span><br>
                     and click below to generate XML document
                 </label>
-                <button id="btnGenerate" type="submit" name="btnSubmit" value="Generate" class="btn btn-danger input-hover">GENERATE</button>
-                <button id="btnSave"  type="submit" name="btnSubmit" value="Download" class="btn btn-primary input-hover input-span"><i class="fa fa-download"></i> DOWNLOAD</button>
+                <button id="btnGenerate" type="submit" name="btnSubmit" value="GenerateAsync" class="btn btn-danger input-hover">GENERATE</button>
+                <button id="btnSave" type="submit" name="btnSubmit" value="DownloadAsync" class="btn btn-primary input-hover input-span"><i class="fa fa-download"></i> DOWNLOAD</button>
                 <button id="btnBeautify" type="button" class="btn btn-success input-hover input-span">Beautify</button>
             </div>
             <div class="doc-input-container">
-                <textarea id="inputXml" class="doc-input" name="XML" type="text">@Model.XML</textarea>
+                <span asp-validation-for="@Model.XML" class="text-danger"></span>
+                <textarea asp-for="@Model.XML" id="input-xml" class="doc-input" type="text"></textarea>
             </div>
         </div>
     </div>
 
-}
-
-@section Scripts {
-    <script language="javascript" type="text/javascript" src="~/lib/codemirror/codemirror.js"></script>
-    <script language="javascript" type="text/javascript" src="~/lib/codemirror/mode/perl/perl.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.0/beautify-html.js"></script>
 }

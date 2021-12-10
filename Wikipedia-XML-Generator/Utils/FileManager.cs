@@ -10,13 +10,13 @@ namespace Wikipedia_XML_Generator.Utils
         #region Writers
         public static int Write(Stream file, string value)
         {
+            if (value is null) return 0;
+
             try
             {
-                using (var writer = new StreamWriter(file))
-                {
-                    writer.Write(value);
-                }
-                return TypesConverter.StringToUTF8(value).Result.Length;
+                var bytes = TypesConverter.StringToUTF8(value).Result;
+                file.Write(bytes);
+                return bytes.Length;
             }
             catch (Exception e)
             {
@@ -27,13 +27,13 @@ namespace Wikipedia_XML_Generator.Utils
 
         public async static Task<int> WriteAsync(Stream file, string value)
         {
+            if (value is null) return 0;
+
             try
             {
-                using (var writer = new StreamWriter(file))
-                {
-                    await writer.WriteAsync(value);
-                }
-                return TypesConverter.StringToUTF8(value).Result.Length;
+                var bytes = await TypesConverter.StringToUTF8(value);
+                await file.WriteAsync(bytes);
+                return bytes.Length;
             }
             catch (Exception e)
             {
