@@ -53,7 +53,7 @@ namespace Wikipedia_XML_Generator.Utils.XMLFileGenerator
             {
                 XmlDocument doc = new XmlDocument();
                 doc.CreateXmlDeclaration("1.0", "UTF-8", null);
-                XmlElement el = doc.CreateElement(string.Empty, this._reader.GetRoot(), string.Empty);
+                XmlElement el = doc.CreateElement(string.Empty, GetRoot(DTDElements), string.Empty);
                 this.AddAttributesToNode(ref el, DTDAttributes);
                 doc.AppendChild(el);
                 Queue<XmlNode> nextElements = new Queue<XmlNode>();
@@ -183,6 +183,39 @@ namespace Wikipedia_XML_Generator.Utils.XMLFileGenerator
                 return wikiXML;
             }
             return await this.GenerateXMLFileAsync(DTDElements, DTDAttributes);
+        }
+
+        private string GetRoot(Dictionary<string, Element> elements)
+        {
+            var dict = new Dictionary<string, int>();
+
+            foreach (var el in elements)
+            {
+                if(!dict.ContainsKey(el.Key))
+                {
+                    dict[el.Key] = 0;
+                }
+
+                if(el.Value.ChildrenOccurrences != null)
+                {
+                    foreach(var child in el.Value.ChildrenOccurrences)
+                    {
+                        if (!dict.ContainsKey(child.Key)) dict[child.Key] = 1;
+                        else dict[child.Key] += 1;
+                    }
+                }
+
+                foreach (var child in el.Value.ChildrenInGroupOccurrences)
+                {
+                    child.Key.ForEach(x =>
+                    {
+                        if (!dict.ContainsKey(x)) dict[x] = 1;
+                        else dict[x] += 1;
+                    });
+                }
+            }
+
+            return dict.Where(x => x.Value == 0).First().Key;
         }
     }
 }

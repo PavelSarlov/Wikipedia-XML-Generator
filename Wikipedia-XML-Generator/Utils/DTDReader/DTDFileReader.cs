@@ -50,16 +50,16 @@ namespace Wikipedia_XML_Generator.Utils.DTDReader
 
         private List<string> GetWordsInAttributeLine(string line)
         {
-            List<string> parts = line.Trim('>').Split("\"").ToList();
+            List<string> parts = line.Trim('>').Split('"', 2).ToList();
             List<string> words = new List<string>();
             switch (parts.Count())
             {
                 case 1:
-                    words = parts[0].Split(" ").ToList();
+                    words = parts[0].Split(" ").Where(x => x != string.Empty).ToList();
                     break;
                 case 2:
-                    words = parts[0].Split(" ").ToList();
-                    words.Add(parts[1]);
+                    words = parts[0].Split(" ").Where(x => x != string.Empty).ToList();
+                    words.Add(parts[1].Trim('"'));
                     break;
             }
             return words;
@@ -106,7 +106,7 @@ namespace Wikipedia_XML_Generator.Utils.DTDReader
 
                 if (!(parts[2].Contains("ANY") || parts[2].Contains("EMPTY")))
                 {
-                    foreach (var element in Regex.Replace(parts[2], "[ \\(\\)]", "").ToUpper().Split(","))
+                    foreach (var element in Regex.Replace(parts[2], @"[ \(\)]", "").ToUpper().Split(","))
                     {
                         char quantify = ' ';
                         if (element.Last() == '*' || element.Last() == '+' || element.Last() == '?')
@@ -134,7 +134,7 @@ namespace Wikipedia_XML_Generator.Utils.DTDReader
             {
                 List<string> words = GetWordsInAttributeLine(item);
 
-                string elementName = words[1], name = words[2];
+                string elementName = words[1].ToUpper(), name = words[2].ToUpper();
                 AttributeTypes type;
                 SetAttributeType(words[3], out type);
                 List<string> enumerations = null;
@@ -163,6 +163,11 @@ namespace Wikipedia_XML_Generator.Utils.DTDReader
                             value = "N/A";
                         }
                     }
+                }
+
+                if(!attributes.ContainsKey(elementName))
+                {
+                    attributes[elementName] = new List<Attribute>();
                 }
                 attributes[elementName].Add(new Attribute(name, elementName, type, valuesType, enumerations, value));
             }
