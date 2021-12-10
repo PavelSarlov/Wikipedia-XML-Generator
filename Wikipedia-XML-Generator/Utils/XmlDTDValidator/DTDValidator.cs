@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Xml;
 
 namespace Wikipedia_XML_Generator.Utils.XmlDTDValidator
 {
@@ -14,22 +15,8 @@ namespace Wikipedia_XML_Generator.Utils.XmlDTDValidator
         {
             try
             {
-                var lines = Regex.Replace(dtd.Trim(), "[\r\n]", "").Split('<', '>').Where(x => x != string.Empty);
-                var result = false;
-
-                foreach (var l in lines)
-                {
-                    var line = Regex.Replace(l.Trim(), " +", " ");
-
-                    result = line.Split(' ')[0] switch
-                    {
-                        "!ELEMENT" => IsValidElement(line),
-                        "!ATTRLIST" => true,
-                        _ => false
-                    };
-                }
-
-                return result;
+                new XmlDocument().LoadXml(string.Format("<!DOCTYPE doc [{0}]><root/>", dtd));
+                return true;
             }
             catch (Exception e)
             {
@@ -52,15 +39,6 @@ namespace Wikipedia_XML_Generator.Utils.XmlDTDValidator
                 Logger.LogAsync(Console.Out, e.Message);
                 return false;
             }
-        }
-
-        private bool IsValidElement(string line)
-        {
-            var el = @"((?<!xml)[_[:alpha:]][\w-]*|#PCDATA)";
-            var quant = @"([*?+]?)";
-            var pattern = string.Format(@"!ELEMENT {0} (ANY|EMPTY|\(({0}{1}|\(?({0}{1}\|?)+(\){1})?,?)+\){1})", el, quant);
-
-            return Regex.IsMatch(line, pattern);
         }
     }
 }
