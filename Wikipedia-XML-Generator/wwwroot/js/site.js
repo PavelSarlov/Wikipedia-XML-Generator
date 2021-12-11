@@ -71,5 +71,18 @@
         editors["inputXml"].getDoc().setValue(edited);
     });
 
-//    editorOnChangeHandler(editors["inputXml"]);
+    $('.CodeMirror').each((i, e) => {
+        switch (e.previousSibling.id) {
+            case "input-dtd": {
+                $(e).find('textarea').attr('name', 'DTD');
+                break;
+            }
+            case "input-xml": {
+                $(e).find('textarea').attr('name', 'XML');
+                break;
+            }
+        }
+    });
+
+    $("textarea").trigger("change");
 });

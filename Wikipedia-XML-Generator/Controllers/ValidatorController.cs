@@ -41,5 +41,20 @@ namespace Wikipedia_XML_Generator.Controllers
                 return Json(false);
             }
         }
+
+        [HttpPost]
+        public async Task<JsonResult> ValidateWikiPageAsync([FromBody] XmlDtdViewModel model)
+        {
+            try
+            {
+                
+                return Json(false);
+            }
+            catch (Exception e)
+            {
+                Logger.LogAsync(Console.Out, e.Message);
+                return Json(false);
+            }
+        }
     }
 }

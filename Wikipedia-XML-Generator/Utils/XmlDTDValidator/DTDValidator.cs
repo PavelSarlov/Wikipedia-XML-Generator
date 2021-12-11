@@ -1,8 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace Wikipedia_XML_Generator.Utils.XmlDTDValidator
@@ -39,6 +37,16 @@ namespace Wikipedia_XML_Generator.Utils.XmlDTDValidator
                 Logger.LogAsync(Console.Out, e.Message);
                 return false;
             }
+        }
+
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        {
+            if(!Validate(value as string))
+            {
+                return new ValidationResult(this.FormatErrorMessage(validationContext.DisplayName));
+            }
+
+            return null;
         }
     }
 }
