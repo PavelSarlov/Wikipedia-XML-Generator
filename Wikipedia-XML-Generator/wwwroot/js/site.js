@@ -22,6 +22,8 @@
 
         var editorName = cm.options["name"];
 
+        $('#input-' + editorName).val(cm.getValue());
+
         var onload = () => {
             var xhr = event.target;
             if (xhr.responseText != "true" && cm.getValue() != '') {
@@ -41,6 +43,7 @@
             lineNumbers: true,
             mode: ["dtd", "xml"][i],
             theme: 'abbott',
+            lineWrapping: $("#switchWrap").prop('checked'),
         });
 
         editor.on("change", editorOnChangeHandler);
@@ -48,7 +51,7 @@
     });
 
     $('#btnBeautify').on('click', async () => {
-        var edited = html_beautify(editors["inputXml"].getValue(), {
+        var edited = html_beautify(editors["input-xml"].getValue(), {
             "indent_size": "4",
             "indent_char": " ",
             "max_preserve_newlines": "5",
@@ -68,7 +71,7 @@
             "indent_empty_lines": false
         });
 
-        editors["inputXml"].getDoc().setValue(edited);
+        editors["input-xml"].getDoc().setValue(edited);
     });
 
     $('.CodeMirror').each((i, e) => {
@@ -81,6 +84,12 @@
                 $(e).find('textarea').attr('name', 'XML');
                 break;
             }
+        }
+    });
+
+    $("#switchWrap").change(() => {
+        for (var k in editors) {
+            editors[k].setOption('lineWrapping', $("#switchWrap").prop('checked'));
         }
     });
 

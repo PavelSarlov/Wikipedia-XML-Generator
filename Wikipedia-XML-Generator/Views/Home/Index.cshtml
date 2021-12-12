@@ -6,7 +6,7 @@
     <div class="inputs-container">
         <div class="doc-input-container">
             <span asp-validation-for="@Model.DTD" class="text-danger"></span>
-            <textarea id="input-dtd" class="doc-input" type="text">@if (@Model is not null) { @Model.DTD }</textarea>
+            <textarea id="input-dtd" class="doc-input" type="text" name="DTD">@Model.DTD</textarea>
         </div>
         <div class="center-container">
             <div class="wiki-input-container">
@@ -25,11 +25,12 @@
                 <button id="btnGenerate" type="submit" name="btnSubmit" value="GenerateAsync" class="btn btn-danger input-hover">GENERATE</button>
                 <button id="btnSave" type="submit" name="btnSubmit" value="DownloadAsync" class="btn btn-primary input-hover input-span"><i class="fa fa-download"></i> DOWNLOAD</button>
                 <button id="btnBeautify" type="button" class="btn btn-success input-hover input-span">Beautify</button>
+                <input type="checkbox" class="input-switch" data-toggle="toggle" data-on="Wrap" data-off="No Wrap" id="switchWrap" checked>
             </div>
         </div>
         <div class="doc-input-container">
             <span asp-validation-for="@Model.XML" class="text-danger"></span>
-            <textarea id="input-xml" class="doc-input" type="text">@if (@Model is not null) { @Model.XML }</textarea>
+            <textarea id="input-xml" class="doc-input" type="text" name="XML">@Model.XML</textarea>
         </div>
     </div>
 
