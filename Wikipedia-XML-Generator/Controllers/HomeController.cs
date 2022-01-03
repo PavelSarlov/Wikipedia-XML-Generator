@@ -26,7 +26,7 @@ namespace Wikipedia_XML_Generator.Controllers
         [HttpGet]
         public async Task<IActionResult> IndexAsync()
         {
-            return View();
+            return View(new XmlDtdViewModel());
         }
 
         [HttpPost]
@@ -57,7 +57,7 @@ namespace Wikipedia_XML_Generator.Controllers
         {
             try
             {
-                model.DTD = await FileManager.ReadAsync(model.FileDTD); ;
+                model.DTD = await FileManager.ReadAsync(model.FileDTD);
             }
             catch (Exception e)
             {
