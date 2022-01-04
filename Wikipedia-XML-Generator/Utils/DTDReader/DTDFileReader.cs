@@ -10,19 +10,19 @@ using Attribute = Wikipedia_XML_Generator.Models.DTD_Elements.Attribute;
 
 namespace Wikipedia_XML_Generator.Utils.DTDReader
 {
-    public class XMLFileGenerator : IDTDFileReader
+    public class DTDFileReader : IDTDFileReader
     {
         private string DTDtext;
         private List<string> elementsLines;
         private List<string> attibutesLines;
 
-        public XMLFileGenerator(Stream file)
+        public DTDFileReader(Stream file)
         {
             this.Status = FileManager.Read(file, out this.DTDtext);
             this.FieldSetter();
         }
 
-        public XMLFileGenerator(IFormFile file)
+        public DTDFileReader(IFormFile file)
         {
             this.Status = FileManager.Read(file, out this.DTDtext);
             this.FieldSetter();

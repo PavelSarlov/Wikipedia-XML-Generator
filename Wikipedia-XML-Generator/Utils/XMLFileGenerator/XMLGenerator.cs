@@ -18,12 +18,12 @@ namespace Wikipedia_XML_Generator.Utils.XMLFileGenerator
 
         public XMLGenerator(Stream file)
         {
-            this._reader = new DTDReader.XMLFileGenerator(file);
+            this._reader = new DTDReader.DTDFileReader(file);
         }
 
         public XMLGenerator(IFormFile file)
         {
-            this._reader = new DTDReader.XMLFileGenerator(file);
+            this._reader = new DTDReader.DTDFileReader(file);
         }
 
         private void AddAttributesToNode(ref XmlElement el, Dictionary<String, List<Attribute>> DTDAttributes)
