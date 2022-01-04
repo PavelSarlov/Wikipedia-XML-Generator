@@ -18,13 +18,13 @@ namespace Wikipedia_XML_Generator.Utils.DTDReader
 
         public DTDFileReader(Stream file)
         {
-            this.Status = FileManager.Read(file, out this.DTDtext);
+            if (FileManager.Read(file, out this.DTDtext) == -1) throw new Exception("Failed to initialize DTD reader.");
             this.FieldSetter();
         }
 
         public DTDFileReader(IFormFile file)
         {
-            this.Status = FileManager.Read(file, out this.DTDtext);
+            if (FileManager.Read(file, out this.DTDtext) == -1) throw new Exception("Failed to initialize DTD reader.");
             this.FieldSetter();
         }
 
@@ -33,7 +33,6 @@ namespace Wikipedia_XML_Generator.Utils.DTDReader
             List<string> lines = this.DTDtext.Split("\r\n").ToList();
             this.elementsLines = new List<string>();
             this.attibutesLines = new List<string>();
-            this.Root = lines[0].Split("[")[0].Trim().Split(" ").Last().ToUpper();
             foreach (var l in lines)
             {
                 string line = l.Remove(0, l.LastIndexOf("\t") + 1);
@@ -173,18 +172,5 @@ namespace Wikipedia_XML_Generator.Utils.DTDReader
             }
             return attributes;
         }
-
-        public int GetStatus()
-        {
-            return this.Status;
-        }
-
-        public string GetRoot()
-        {
-            return this.Root;
-        }
-
-        public int Status { get; set; }
-        public string Root { get; set; }
     }
 }

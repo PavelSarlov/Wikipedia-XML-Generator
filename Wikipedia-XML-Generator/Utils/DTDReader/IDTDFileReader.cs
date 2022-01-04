@@ -10,9 +10,5 @@ namespace Wikipedia_XML_Generator.Utils.DTDReader
         public Dictionary<String, Element> GetElements();
 
         public Dictionary<String, List<Attribute>> GetAttributes();
-
-        public int GetStatus();
-
-        public String GetRoot();
     }
 }

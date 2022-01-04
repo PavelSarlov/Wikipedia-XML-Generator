@@ -14,16 +14,30 @@ namespace Wikipedia_XML_Generator.Utils.XMLFileGenerator
 {
     public class XMLGenerator : IXMLGenerator
     {
-        private IDTDFileReader _reader;
+        private IDTDFileReader _reader = null;
 
         public XMLGenerator(Stream file)
         {
-            this._reader = new DTDReader.DTDFileReader(file);
+            try
+            {
+                this._reader = new DTDReader.DTDFileReader(file);
+            }
+            catch (Exception e)
+            {
+                Logger.LogAsync(Console.Out, e.Message);
+            }
         }
 
         public XMLGenerator(IFormFile file)
         {
-            this._reader = new DTDReader.DTDFileReader(file);
+            try
+            {
+                this._reader = new DTDReader.DTDFileReader(file);
+            }
+            catch (Exception e)
+            {
+                Logger.LogAsync(Console.Out, e.Message);
+            }
         }
 
         private void AddAttributesToNode(ref XmlElement el, Dictionary<String, List<Attribute>> DTDAttributes)
@@ -171,7 +185,7 @@ namespace Wikipedia_XML_Generator.Utils.XMLFileGenerator
         public async Task<XmlDocument> GetXMLFromWikiTextAsync(String url)
         {
             var wikiXML = await WikiScrapper.GetXml(url);
-            if (this._reader.GetStatus() == -1 || wikiXML == null)
+            if (this._reader == null || wikiXML == null)
             {
                 return null;
             }
