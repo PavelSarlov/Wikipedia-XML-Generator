@@ -1,0 +1,9 @@
+<!ELEMENT sretensk (history, prehistory, posthistory, some_more_history)>
+<!ELEMENT history (#PCDATA)>
+<!ELEMENT prehistory (#PCDATA)>
+<!ELEMENT posthistory (#PCDATA)>
+<!ELEMENT some_more_history (the, history, is, endless)>
+<!ELEMENT the (#PCDATA)>
+<!ELEMENT is (#PCDATA)>
+<!ELEMENT endless (#PCDATA)>
+<!ATTLIST history date CDATA "1900.01.02">

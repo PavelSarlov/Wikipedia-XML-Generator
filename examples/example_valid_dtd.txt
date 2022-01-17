@@ -1,0 +1,10 @@
+<!ELEMENT sretensk (history, administrative_and_municipal_status, transportation, climate, references)>
+<!ELEMENT history (#PCDATA)>
+<!ELEMENT administrative_and_municipal_status (#PCDATA)>
+<!ELEMENT transportation (#PCDATA)>
+<!ELEMENT climate (#PCDATA)>
+<!ELEMENT references (notes, sources)>
+<!ELEMENT notes (#PCDATA)>
+<!ELEMENT sources (#PCDATA)>
+<!ATTLIST history date CDATA "1900.01.02">
+<!ATTLIST references href CDATA #IMPLIED>

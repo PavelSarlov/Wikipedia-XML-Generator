@@ -17,7 +17,7 @@ namespace Wikipedia_XML_Generator.Controllers
         {
             try
             {
-                var validator = new XMLValidator(model.DTD);
+                var validator = new XMLValidator(model.DTD.ToUpper());
                 return Json(validator.Validate(model.XML));
             }
             catch (Exception e)
